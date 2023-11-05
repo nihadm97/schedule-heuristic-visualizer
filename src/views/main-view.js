@@ -46,7 +46,38 @@ const subjects = [
   "subj 4 7",
   "subj 4 8",
 ];
-const time = [9, 10, 11, 12, 13, 14, 15, 16];
+const time = [
+  "m1",
+  "m2",
+  "m3",
+  "m4",
+  "m5",
+  "m6",
+  "t1",
+  "t2",
+  "t3",
+  "t4",
+  "t5",
+  "t6",
+  "w1",
+  "w2",
+  "w3",
+  "w4",
+  "w5",
+  "w6",
+  "th1",
+  "th2",
+  "th3",
+  "th4",
+  "th5",
+  "th6",
+  "f1",
+  "f2",
+  "f3",
+  "f4",
+  "f5",
+  "f6",
+];
 const classrooms = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const classes = [
   "I1",
@@ -98,7 +129,28 @@ const tempSolution = [
 ];
 
 // Function to check if some professor is in different classes at the same time
-const checkForSameProfessorDifferentClass = (solution) => {};
+// Solution is made of 'solutionCells', we have to check if some two cells have the
+// the same attributes professorIdx and timeIdx which would mean that the same professor
+// is asigned to different class at the same time
+const checkForSameProfessorDifferentClass = (solution) => {
+  // we will iterate through the solution(all cells) for all professors and check if the times collide
+  for (let i = 0; i < professors.length; i++) {
+    let timesForProfessor = new Array(time.length).fill(false);
+    for (s in solution) {
+      if (s.professorIdx === i && timesForProfessor[s.timeIdx] === true) {
+        return false; // We found a cell in which is professor assigned to a time in which he is already assigned
+      } else if (
+        s.professorIdx === i &&
+        timesForProfessor[s.timeIdx] === false
+      ) {
+        timesForProfessor[s.timeIdx] = true;
+      } else {
+        continue;
+      }
+    }
+  }
+  return true; // We didnt find double times for the same professor
+};
 
 export default function MainView() {
   return (
