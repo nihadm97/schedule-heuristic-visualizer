@@ -6,6 +6,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+
 
 const professors = [
   "Hozo Minja",
@@ -159,73 +162,105 @@ const tempSolution = [
 // the same attributes professorIdx and timeIdx which would mean that the same professor
 // is asigned to different class at the same time
 const checkForSameProfessorDifferentClass = (solution) => {
-  // we will iterate through the solution(all cells) for all professors and check if the times collide
-  for (let i = 0; i < professors.length; i++) {
-    let timesForProfessor = new Array(time.length).fill(false);
-    for (s in solution) {
-      if (s.professorIdx === i && timesForProfessor[s.timeIdx] === true) {
-        return false; // We found a cell in which is professor assigned to a time in which he is already assigned
-      } else if (
-        s.professorIdx === i &&
-        timesForProfessor[s.timeIdx] === false
-      ) {
+  for (const professor of professors) {
+    const professorIndex = professors.indexOf(professor);
+    const timesForProfessor = new Array(time.length).fill(false);
+    
+    for (const s of solution) {
+      if (s.professorIdx === professorIndex) {
+        if (timesForProfessor[s.timeIdx]) {
+          // Found a time conflict for the professor
+          return false;
+        }
         timesForProfessor[s.timeIdx] = true;
-      } else {
-        continue;
       }
     }
   }
-  return true; // We didnt find double times for the same professor
+  // No time conflicts found for any professor
+  return true;
 };
 
 
+const theme = createTheme({
+  typography: {
+    fontFamily: [
+      'Roboto', 
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif'
+    ].join(','),
+  },
+
+});
+
 export default function MainView() {
+  const renderCell = (timeslotIndex, row) => {
+    const cellStyles = {
+      bgcolor: timeslotIndex === row.timeIdx ? 'secondary.main' : 'background.paper',
+      color: timeslotIndex === row.timeIdx ? 'common.white' : 'text.primary',
+      textAlign: 'center',
+      borderRight: timeslotIndex < time.length - 1 ? '1px solid rgba(224, 224, 224, 1)' : '',
+    };
 
+    return (
+      <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
+        {timeslotIndex === row.timeIdx && (
+          <>
+            {classes[row.classIdx]}
+            <br />
+            {classrooms[row.classroomIdx]}
+            <br />
+            {subjects[row.subjectIdx]}
+          </>
+        )}
+      </TableCell>
+    );
+  };
+
+  const tableCellStyle = {
+    fontWeight: 'bold',
+    bgcolor: 'primary.dark',
+    color: 'common.white',
+    textAlign: 'center',
+  };
+
+  const tableHeaderStyle = {
+    bgcolor: 'primary.main',
+    color: 'common.white',
+    textAlign: 'center',
+  };
+
+        
   return (
-    <Container>
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "70px" }}
-      ></Box>
-    <TableContainer component={Paper} style={{ paddingLeft: 0, paddingRight: 0, marginLeft:0, marginRight:0, width: '100%' }}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-          <TableCell>Professor</TableCell>
-          {time.map((timeslot) => (
-            <TableCell>{timeslot}</TableCell> // write all timeslot labels
-          ))}
-            
-          </TableRow>
-        </TableHead>
-        <TableBody>
-        {tempSolution.map((row) => (
-          <TableRow
-            key={row.professorIdx} 
-            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-          >
-          <TableCell component="th" scope="row">
-            {professors[row.professorIdx]}
-          </TableCell>
-          {time.map((index) => {
-            if (index === time[row.timeIdx]) { // when professor has a lecture in that timeslot visualize it 
-              return (
-                <TableCell align="center">
-                  {classes[row.classIdx]}
-                  {"\n"}
-                  {classrooms[row.classroomIdx]}
-                  {"\n"}
-                  {subjects[row.subjectIdx]}
-                </TableCell>
-        );
-      }
-      return <TableCell align="right"></TableCell>; // when professor does not have a lecture in that timeslot just create empty cell (necessary for correct visualization of lectures)
-          })}
-        </TableRow>
-        ))}
-
-        </TableBody>
-      </Table>
-      </TableContainer>
+    <ThemeProvider theme={theme}>
+    <Container sx={{ mt: '70px', pl: 0, width: '100%' }}>
+      <Box display="flex" justifyContent="center">
+        <TableContainer component={Paper} elevation={3}>
+          <Table sx={{ minWidth: 650 }} aria-label="schedule table">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={tableHeaderStyle}>Professor</TableCell>
+                {time.map((timeslot, index) => (
+                  <TableCell key={`head-cell-${index}`} sx={tableHeaderStyle}>
+                    {timeslot}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tempSolution.map((row, index) => (
+                <TableRow key={`row-${index}`} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                  <TableCell component="th" scope="row" sx={tableCellStyle}>
+                    {professors[row.professorIdx]}
+                  </TableCell>
+                  {time.map((_, timeslotIndex) => renderCell(timeslotIndex, row))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </Container>
+    </ThemeProvider>
   );
 }
