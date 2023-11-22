@@ -7,6 +7,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import React, { useState, useEffect } from 'react';
 
 const professors = [
   "Hozo Minja",
@@ -440,7 +441,8 @@ function batAlgorithm(
   fMin = 0,
   fMax = 10,
   lowerBound = 0,
-  upperBound = time.length
+  upperBound = time.length,
+  updateTempSolution 
 ) {
   if (!costFunc)
     throw new Error(
@@ -480,6 +482,7 @@ function batAlgorithm(
   let bestBat;
   // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
+    
     let indexMin = cost.indexOf(Math.min(...cost)); // best bat index so far
     bestBat = position[indexMin]; // best bat so far
 
@@ -537,14 +540,13 @@ function batAlgorithm(
         loudness[i] = loudness[i] * ALPHA; // loudness update (6)
         pulseRate[i] = pulseRate[i] * (1 - Math.exp(-GAMMA * gen)); // pulse rate update (6)
       }
+      updateTempSolution(solution);
     }
   }
   switchTimes(bestBat, solution);
   return solution;
 }
 
-// Call the batAlgorithm() function with optional parameters
-//const result = batAlgorithm(cost);
 const result = batAlgorithm(
   cost,
   150,
@@ -567,6 +569,19 @@ const theme = createTheme({
 });
 
 export default function MainView() {
+
+  const initialSolution = [
+    oneCellInSolution,
+    oneCellInSolution2,
+    oneCellInSolution3,
+  ];
+
+  const [tempSolution, setTempSolution] = useState(initialSolution);
+
+  const updateTempSolution = (newSolution) => {
+    setTempSolution(newSolution);
+  };
+  
   const renderCell = (timeslotIndex, row) => {
     const cellStyles = {
       bgcolor:
@@ -607,6 +622,24 @@ export default function MainView() {
     textAlign: "center",
   };
 
+  useEffect(() => {
+    batAlgorithm(
+      cost,
+      150,
+      10000,
+      100,
+      initialSolution,
+      2,
+      1,
+      -10,
+      10,
+      0,
+      time.length,
+      updateTempSolution
+    );
+
+  }, []); 
+
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
@@ -644,4 +677,6 @@ export default function MainView() {
       </Container>
     </ThemeProvider>
   );
+
+                    
 }
