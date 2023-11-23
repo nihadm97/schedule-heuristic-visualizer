@@ -131,30 +131,25 @@ const classes = [
 
 const oneCellInSolution = {
   professorIdx: 0,
-  timeIdx: 2,
+  timeIdx: 7,
   subjectIdx: 0,
   classroomIdx: 0,
   classIdx: 0,
 };
 const oneCellInSolution2 = {
   professorIdx: 1,
-  timeIdx: 0,
+  timeIdx: 5,
   subjectIdx: 1,
   classroomIdx: 1,
   classIdx: 1,
 };
 const oneCellInSolution3 = {
   professorIdx: 2,
-  timeIdx: 0,
+  timeIdx: 4,
   subjectIdx: 2,
   classroomIdx: 2,
   classIdx: 2,
 };
-const tempSolution = [
-  oneCellInSolution,
-  oneCellInSolution2,
-  oneCellInSolution3,
-];
 
 const cell1 = {
   professorIdx: 0,
@@ -402,23 +397,16 @@ function cost(x) {
   return sum;
 }
 
-// console.log("test", cost(tempSolution), tempSolution);
 
 function cost_2(x) {
   // reference error in checkProfessorBreakAndNumOfLessons on Line 288, needs to be resolved
   let sum = 0;
   sum += checkProfessorBreakAndNumOfLessons(x);
-  console.log(sum);
   sum += checkForSameProfessorDifferentClass(x);
-  console.log(sum);
-
-  sum += checkClassGapsAndNumOfLessons(x);
-  console.log(sum);
-
+  sum += checkClassGapsAndNumOfLessons(x);  
   return sum;
 }
 
-console.log("test 2", cost_2(tempSolution2), tempSolution2);
 
 function switchTimes(arrayTimes, arraySolution) {
   // switch old timeslots with new timeslots
@@ -435,14 +423,15 @@ function batAlgorithm(
   saveRate = 100,
   maxGen = 1000,
   popSize = 50,
-  solution = tempSolution,
+  solution = tempSolution2,
   maxLoudness = 2,
   maxPulseRate = 1,
   fMin = 0,
   fMax = 10,
   lowerBound = 0,
   upperBound = time.length,
-  updateTempSolution 
+  tempSolution,
+  setTempSolution
 ) {
   if (!costFunc)
     throw new Error(
@@ -481,8 +470,8 @@ function batAlgorithm(
 
   let bestBat;
   // cycle through each generation
+
   for (let gen = 1; gen <= maxGen; gen++) {
-    
     let indexMin = cost.indexOf(Math.min(...cost)); // best bat index so far
     bestBat = position[indexMin]; // best bat so far
 
@@ -530,7 +519,7 @@ function batAlgorithm(
 
       let newCost = costFunc(switchTimes(newPosition[i], solution)); // bat 'newPosition's cost
 
-      // try to accept the new solution
+      // tr y to accept the new solution
       if (getRdn(0, 1) < loudness[i] || newCost <= cost[i]) {
         // new solution accepted, assigning new position to each bat
         for (let j = 0; j < solution.length; j++) {
@@ -540,33 +529,49 @@ function batAlgorithm(
         loudness[i] = loudness[i] * ALPHA; // loudness update (6)
         pulseRate[i] = pulseRate[i] * (1 - Math.exp(-GAMMA * gen)); // pulse rate update (6)
       }
-      updateTempSolution(solution);
     }
+
+    let newSolution = solution
+    setTempSolution(newSolution)
+
   }
+
   switchTimes(bestBat, solution);
   return solution;
 }
-
-const result = batAlgorithm(
-  cost,
-  150,
-  10000,
-  100,
-  tempSolution,
-  2,
-  1,
-  -10,
-  10,
-  0,
-  time.length
-);
-console.log(result);
 
 const theme = createTheme({
   typography: {
     fontFamily: ["Roboto", '"Helvetica Neue"', "Arial", "sans-serif"].join(","),
   },
 });
+
+const renderCell = (timeslotIndex, row) => {
+  const cellStyles = {
+    bgcolor:
+      timeslotIndex === row.timeIdx ? "secondary.main" : "background.paper",
+    color: timeslotIndex === row.timeIdx ? "common.white" : "text.primary",
+    textAlign: "center",
+    borderRight:
+      timeslotIndex < time.length - 1
+        ? "1px solid rgba(224, 224, 224, 1)"
+        : "",
+  };
+
+  return (
+    <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
+      {timeslotIndex === row.timeIdx && (
+        <>
+          {classes[row.classIdx]}
+          <br />
+          {classrooms[row.classroomIdx]}
+          <br />
+          {subjects[row.subjectIdx]}
+        </>
+      )}
+    </TableCell>
+  );
+};
 
 export default function MainView() {
 
@@ -577,37 +582,6 @@ export default function MainView() {
   ];
 
   const [tempSolution, setTempSolution] = useState(initialSolution);
-
-  const updateTempSolution = (newSolution) => {
-    setTempSolution(newSolution);
-  };
-  
-  const renderCell = (timeslotIndex, row) => {
-    const cellStyles = {
-      bgcolor:
-        timeslotIndex === row.timeIdx ? "secondary.main" : "background.paper",
-      color: timeslotIndex === row.timeIdx ? "common.white" : "text.primary",
-      textAlign: "center",
-      borderRight:
-        timeslotIndex < time.length - 1
-          ? "1px solid rgba(224, 224, 224, 1)"
-          : "",
-    };
-
-    return (
-      <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
-        {timeslotIndex === row.timeIdx && (
-          <>
-            {classes[row.classIdx]}
-            <br />
-            {classrooms[row.classroomIdx]}
-            <br />
-            {subjects[row.subjectIdx]}
-          </>
-        )}
-      </TableCell>
-    );
-  };
 
   const tableCellStyle = {
     fontWeight: "bold",
@@ -622,7 +596,9 @@ export default function MainView() {
     textAlign: "center",
   };
 
-  useState(() => {
+  useEffect(() => {
+    console.log("Pozvan UseEffect.")
+    console.log("Ovo je incijalni tempSolution: ", tempSolution)
     batAlgorithm(
       cost,
       150,
@@ -635,10 +611,17 @@ export default function MainView() {
       10,
       0,
       time.length,
-      updateTempSolution
-    );
+      tempSolution,
+      setTempSolution
+    ); 
+  }, []);
 
-  }, []); 
+  /* 
+  useEffect(() => {
+    console.log("Ovo je promjenjeni bas tempSolution: ", tempSolution)
+    setTempSolution(tempSolution)
+  }, [tempSolution]);
+  */
 
   return (
     <ThemeProvider theme={theme}>
@@ -657,8 +640,8 @@ export default function MainView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tempSolution.map((row, index) => (
-                  <TableRow
+                {tempSolution.map((row, index) => {
+                  return <TableRow
                     key={`row-${index}`}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
@@ -669,7 +652,7 @@ export default function MainView() {
                       renderCell(timeslotIndex, row)
                     )}
                   </TableRow>
-                ))}
+                })}
               </TableBody>
             </Table>
           </TableContainer>
