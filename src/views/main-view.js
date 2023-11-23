@@ -622,7 +622,7 @@ export default function MainView() {
     textAlign: "center",
   };
 
-  useEffect(() => {
+  useState(() => {
     batAlgorithm(
       cost,
       150,
