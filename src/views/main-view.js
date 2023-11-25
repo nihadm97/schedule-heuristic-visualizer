@@ -167,14 +167,14 @@ const cell2 = {
 };
 const cell3 = {
   professorIdx: 2,
-  timeIdx: 3,
+  timeIdx: 2,
   subjectIdx: 2,
   classroomIdx: 2,
   classIdx: 2,
 };
 const cell4 = {
   professorIdx: 2,
-  timeIdx: 3,
+  timeIdx: 0,
   subjectIdx: 2,
   classroomIdx: 2,
   classIdx: 3,
@@ -546,42 +546,48 @@ const theme = createTheme({
   },
 });
 
-const renderCell = (timeslotIndex, row) => {
+
+const renderCell = (timeslotIndex, professorLessons) => {
+  const lessonsInThisTimeslot = professorLessons.filter(
+    lesson => lesson.timeIdx === timeslotIndex
+  );
+
   const cellStyles = {
-    bgcolor:
-      timeslotIndex === row.timeIdx ? "secondary.main" : "background.paper",
-    color: timeslotIndex === row.timeIdx ? "common.white" : "text.primary",
+    bgcolor: lessonsInThisTimeslot.length > 0 ? "secondary.main" : "background.paper",
+    color: lessonsInThisTimeslot.length > 0 ? "common.white" : "text.primary",
     textAlign: "center",
-    borderRight:
-      timeslotIndex < time.length - 1
-        ? "1px solid rgba(224, 224, 224, 1)"
-        : "",
+    borderRight: timeslotIndex < time.length - 1 ? "1px solid rgba(224, 224, 224, 1)" : "",
   };
 
   return (
     <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
-      {timeslotIndex === row.timeIdx && (
-        <>
-          {classes[row.classIdx]}
+      {lessonsInThisTimeslot.map((lesson, idx) => (
+        <div key={idx}>
+          {classes[lesson.classIdx]}
           <br />
-          {classrooms[row.classroomIdx]}
+          {classrooms[lesson.classroomIdx]}
           <br />
-          {subjects[row.subjectIdx]}
-        </>
-      )}
+          {subjects[lesson.subjectIdx]}
+        </div>
+      ))}
     </TableCell>
   );
 };
 
 export default function MainView() {
 
-  const initialSolution = [
-    oneCellInSolution,
-    oneCellInSolution2,
-    oneCellInSolution3,
-  ];
+  const initialSolution = [cell1, cell2, cell3, cell4];
 
   const [tempSolution, setTempSolution] = useState(initialSolution);
+
+  const groupedLessons = {};
+  tempSolution.forEach(lesson => {
+      const professorName = professors[lesson.professorIdx];
+      if (!groupedLessons[professorName]) {
+          groupedLessons[professorName] = [];
+      }
+      groupedLessons[professorName].push(lesson);
+  });
 
   const tableCellStyle = {
     fontWeight: "bold",
@@ -597,8 +603,6 @@ export default function MainView() {
   };
 
   useEffect(() => {
-    console.log("Pozvan UseEffect.")
-    console.log("Ovo je incijalni tempSolution: ", tempSolution)
     batAlgorithm(
       cost,
       150,
@@ -615,13 +619,6 @@ export default function MainView() {
       setTempSolution
     ); 
   }, []);
-
-  /* 
-  useEffect(() => {
-    console.log("Ovo je promjenjeni bas tempSolution: ", tempSolution)
-    setTempSolution(tempSolution)
-  }, [tempSolution]);
-  */
 
   return (
     <ThemeProvider theme={theme}>
@@ -640,19 +637,16 @@ export default function MainView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tempSolution.map((row, index) => {
-                  return <TableRow
-                    key={`row-${index}`}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
+                {Object.keys(groupedLessons).map((professorName, index) => (
+                  <TableRow key={`row-${index}`}>
                     <TableCell component="th" scope="row" sx={tableCellStyle}>
-                      {professors[row.professorIdx]}
+                      {professorName}
                     </TableCell>
-                    {time.map((_, timeslotIndex) =>
-                      renderCell(timeslotIndex, row)
-                    )}
+                    {time.map((_, timeslotIndex) => (
+                      renderCell(timeslotIndex, groupedLessons[professorName])
+                    ))}
                   </TableRow>
-                })}
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
