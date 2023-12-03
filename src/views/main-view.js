@@ -7,6 +7,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import React, { useState, useEffect } from 'react';
 
 const professors = [
   "Hozo Minja",
@@ -128,57 +129,191 @@ const classes = [
 //  second index represents the time, third index is subject, fourth is classroom and
 //  fifth is class
 
-const oneCellInSolution = {
-  professorIdx: 0,
-  timeIdx: 2,
-  subjectIdx: 0,
-  classroomIdx: 0,
-  classIdx: 0,
-};
-const oneCellInSolution2 = {
-  professorIdx: 1,
-  timeIdx: 0,
-  subjectIdx: 1,
-  classroomIdx: 1,
-  classIdx: 1,
-};
-const oneCellInSolution3 = {
-  professorIdx: 2,
-  timeIdx: 0,
-  subjectIdx: 2,
-  classroomIdx: 2,
-  classIdx: 2,
-};
-const tempSolution = [
-  oneCellInSolution,
-  oneCellInSolution2,
-  oneCellInSolution3,
-];
-
 const cell1 = {
   professorIdx: 0,
-  timeIdx: 2,
+  timeIdx: 0,
   subjectIdx: 0,
-  classroomIdx: 0,
+  classroomIdx: 15,
   classIdx: 0,
 };
 const cell2 = {
+  professorIdx: 0,
+  timeIdx: 1,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 1,
+};
+const cell3 = {
+  professorIdx: 0,
+  timeIdx: 2,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 2,
+};
+const cell4 = {
+  professorIdx: 0,
+  timeIdx: 3,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 3,
+};
+const cell5 = {
+  professorIdx: 0,
+  timeIdx: 7,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 0,
+};
+const cell6 = {
+  professorIdx: 0,
+  timeIdx: 8,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 1,
+};
+const cell7 = {
+  professorIdx: 0,
+  timeIdx: 9,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 2,
+};
+const cell8 = {
+  professorIdx: 0,
+  timeIdx: 10,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 3,
+};
+const cell9 = {
+  professorIdx: 0,
+  timeIdx: 14,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 0,
+};
+const cell10 = {
+  professorIdx: 0,
+  timeIdx: 15,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 1,
+};
+const cell11 = {
+  professorIdx: 0,
+  timeIdx: 16,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 2,
+};
+const cell12 = {
+  professorIdx: 0,
+  timeIdx: 17,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 3,
+};
+const cell13 = {
+  professorIdx: 2,
+  timeIdx: 1,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 0,
+};
+const cell14 = {
+  professorIdx: 2,
+  timeIdx: 2,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 1,
+};
+const cell15 = {
+  professorIdx: 2,
+  timeIdx: 3,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 2,
+};
+const cell16 = {
+  professorIdx: 2,
+  timeIdx: 4,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 3,
+};
+const cell17 = {
+  professorIdx: 2,
+  timeIdx: 8,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 0,
+};
+const cell18 = {
+  professorIdx: 2,
+  timeIdx: 9,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 1,
+};
+const cell19 = {
+  professorIdx: 2,
+  timeIdx: 10,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 2,
+};
+const cell20 = {
+  professorIdx: 2,
+  timeIdx: 11,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 3,
+};
+const cell21 = {
+  professorIdx: 2,
+  timeIdx: 15,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 0,
+};
+const cell22 = {
+  professorIdx: 2,
+  timeIdx: 16,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 1,
+};
+const cell23 = {
+  professorIdx: 2,
+  timeIdx: 17,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 2,
+};
+const cell24 = {
+  professorIdx: 2,
+  timeIdx: 18,
+  subjectIdx: 1,
+  classroomIdx: 17,
+  classIdx: 3,
+};
+const cell300 = {
   professorIdx: 1,
   timeIdx: 0,
   subjectIdx: 1,
   classroomIdx: 1,
   classIdx: 1,
 };
-const cell3 = {
+const cell301 = {
   professorIdx: 2,
-  timeIdx: 3,
+  timeIdx: 2,
   subjectIdx: 2,
   classroomIdx: 2,
   classIdx: 2,
 };
-const cell4 = {
+const cell302 = {
   professorIdx: 2,
-  timeIdx: 3,
+  timeIdx: 0,
   subjectIdx: 2,
   classroomIdx: 2,
   classIdx: 3,
@@ -247,6 +382,7 @@ const checkForSameProfessorDifferentClass = (solution) => {
   for (let i = 0; i < professors.length; i++) {
     let timesForProfessor = new Array(time.length).fill(false);
     for (let j = 0; j < solution.length; j++) {
+      // console.log("s", solution[j]);
       if (
         solution[j].professorIdx === i &&
         timesForProfessor[solution[j].timeIdx] === true
@@ -261,6 +397,7 @@ const checkForSameProfessorDifferentClass = (solution) => {
         continue;
       }
     }
+    // console.log("times for proff", timesForProfessor);
   }
   return sum; //   We didnt find double times for the same professor
 };
@@ -330,10 +467,6 @@ const checkProfessorBreakAndNumOfLessons = (solution) => {
     //  variables 'classesPerDay and allClassTimesFound in an array, where array is slot for each class to check
     for (let j = 0; j < solution.length; j++) {
       if (solution[j].professorIdx === i) {
-        //console.log(solution[j].timeIdx);
-        if(solution[j].timeIdx == time.length){
-          solution[j].timeIdx = time.length - 1;
-        }
         if (time[solution[j].timeIdx][0] == "M") {
           classesPerDay[0]++;
           allClassTimesFound.push(time[solution[j].timeIdx]);
@@ -357,7 +490,7 @@ const checkProfessorBreakAndNumOfLessons = (solution) => {
       }
     }
     for (let j = 0; j < 5; j++) {
-      if (classesPerDay[j] < 2 || classesPerDay[j] > 7) {
+      if (classesPerDay[j] == 1 || classesPerDay[j] > 7) {
         sum -= 5000;
         break;
       }
@@ -391,22 +524,32 @@ function average(array) {
 }
 
 // Define the cost function
-
 function cost(x) {
+  // temporaly cost function
   let sum = 0;
-  sum += checkProfessorBreakAndNumOfLessons(x);
-  sum += checkForSameProfessorDifferentClass(x);
-  sum += checkClassGapsAndNumOfLessons(x);
-
+  for (let i = 0; i < x.length; i++) {
+    sum += x[i].timeIdx * x[i].timeIdx;
+  }
   return sum;
 }
 
+
+function cost_2(x) {
+  let sum = 0;
+  sum += checkProfessorBreakAndNumOfLessons(x);
+  sum += checkForSameProfessorDifferentClass(x);
+  //sum += checkClassGapsAndNumOfLessons(x);  // commented to make professor conditions work first
+  return sum;
+}
+
+
 function switchTimes(arrayTimes, arraySolution) {
+  let arrayTemp = arraySolution;
   // switch old timeslots with new timeslots
   for (let i = 0; i < arrayTimes.length; i++) {
-    arraySolution[i].timeIdx = arrayTimes[i];
+    arrayTemp[i].timeIdx = arrayTimes[i];
   }
-  return arraySolution;
+  return arrayTemp;
 }
 
 // bat algorithm for finding best timeslots for tempSolution, rewrites the tempSolution with new timeslots
@@ -416,13 +559,15 @@ function batAlgorithm(
   saveRate = 100,
   maxGen = 1000,
   popSize = 50,
-  solution = tempSolution,
+  solution = tempSolution2,
   maxLoudness = 2,
   maxPulseRate = 1,
   fMin = 0,
   fMax = 10,
   lowerBound = 0,
-  upperBound = time.length-1
+  upperBound = time.length - 1,
+  tempSolution,
+  setTempSolution
 ) {
   if (!costFunc)
     throw new Error(
@@ -449,7 +594,7 @@ function batAlgorithm(
 
     for (let j = 0; j < solution.length; j++) {
       position[i][j] = Math.round(getRdn(lowerBound, upperBound));
-      velocity[i][j] = getRdn(lowerBound, upperBound);
+      velocity[i][j] = getRdn(-3, 3);
     }
   }
 
@@ -461,9 +606,10 @@ function batAlgorithm(
 
   let bestBat;
   // cycle through each generation
+
   for (let gen = 1; gen <= maxGen; gen++) {
-    let indexMin = cost.indexOf(Math.min(...cost)); // best bat index so far
-    bestBat = position[indexMin]; // best bat so far
+    let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
+    bestBat = position[indexMax]; // best bat so far
 
     if (gen % saveRate === 0 || gen === 1) {
       let data = {};
@@ -506,11 +652,11 @@ function batAlgorithm(
           );
         }
       }
-
+      
       let newCost = costFunc(switchTimes(newPosition[i], solution)); // bat 'newPosition's cost
 
-      // try to accept the new solution
-      if (getRdn(0, 1) < loudness[i] || newCost <= cost[i]) {
+      // tr y to accept the new solution
+      if (getRdn(0, 1) < loudness[i] || newCost >= cost[i]) {
         // new solution accepted, assigning new position to each bat
         for (let j = 0; j < solution.length; j++) {
           position[i][j] = newPosition[i][j];
@@ -520,27 +666,15 @@ function batAlgorithm(
         pulseRate[i] = pulseRate[i] * (1 - Math.exp(-GAMMA * gen)); // pulse rate update (6)
       }
     }
+
+
   }
-  switchTimes(bestBat, solution);
+
+  let newSolution = solution;
+  setTempSolution(newSolution);
+  solution = switchTimes(bestBat, solution);
   return solution;
 }
-
-// Call the batAlgorithm() function with optional parameters
-//const result = batAlgorithm(cost);
-const result = batAlgorithm(
-  cost,
-  150,
-  10000,
-  100,
-  tempSolution2,
-  2,
-  1,
-  -10,
-  10,
-  0,
-  time.length-1
-);
-console.log(result);
 
 const theme = createTheme({
   typography: {
@@ -548,33 +682,51 @@ const theme = createTheme({
   },
 });
 
-export default function MainView() {
-  const renderCell = (timeslotIndex, row) => {
-    const cellStyles = {
-      bgcolor:
-        timeslotIndex === row.timeIdx ? "secondary.main" : "background.paper",
-      color: timeslotIndex === row.timeIdx ? "common.white" : "text.primary",
-      textAlign: "center",
-      borderRight:
-        timeslotIndex < time.length - 1
-          ? "1px solid rgba(224, 224, 224, 1)"
-          : "",
-    };
 
-    return (
-      <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
-        {timeslotIndex === row.timeIdx && (
-          <>
-            {classes[row.classIdx]}
-            <br />
-            {classrooms[row.classroomIdx]}
-            <br />
-            {subjects[row.subjectIdx]}
-          </>
-        )}
-      </TableCell>
-    );
+const renderCell = (timeslotIndex, professorLessons) => {
+  const lessonsInThisTimeslot = professorLessons.filter(
+    lesson => lesson.timeIdx === timeslotIndex
+  );
+
+  const cellStyles = {
+    bgcolor: lessonsInThisTimeslot.length > 0 ? "secondary.main" : "background.paper",
+    color: lessonsInThisTimeslot.length > 0 ? "common.white" : "text.primary",
+    textAlign: "center",
+    borderRight: timeslotIndex < time.length - 1 ? "1px solid rgba(224, 224, 224, 1)" : "",
   };
+
+  return (
+    <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
+      {lessonsInThisTimeslot.map((lesson, idx) => (
+        <div key={idx}>
+          {classes[lesson.classIdx]}
+          <br />
+          {classrooms[lesson.classroomIdx]}
+          <br />
+          {subjects[lesson.subjectIdx]}
+        </div>
+      ))}
+    </TableCell>
+  );
+};
+
+const initialSolution1 = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24];
+console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
+
+
+export default function MainView() {
+
+  const initialSolution = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24];
+  const [tempSolution, setTempSolution] = useState(initialSolution);
+
+  const groupedLessons = {};
+  tempSolution.forEach(lesson => {
+      const professorName = professors[lesson.professorIdx];
+      if (!groupedLessons[professorName]) {
+          groupedLessons[professorName] = [];
+      }
+      groupedLessons[professorName].push(lesson);
+  });
 
   const tableCellStyle = {
     fontWeight: "bold",
@@ -588,6 +740,24 @@ export default function MainView() {
     color: "common.white",
     textAlign: "center",
   };
+
+  useEffect(() => {
+    batAlgorithm(
+      cost_2,
+      150,
+      10000,
+      100,
+      initialSolution,
+      2,
+      1,
+      -10,
+      10,
+      0,
+      time.length - 1,
+      tempSolution,
+      setTempSolution
+    ); 
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -606,17 +776,14 @@ export default function MainView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tempSolution.map((row, index) => (
-                  <TableRow
-                    key={`row-${index}`}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
+                {Object.keys(groupedLessons).map((professorName, index) => (
+                  <TableRow key={`row-${index}`}>
                     <TableCell component="th" scope="row" sx={tableCellStyle}>
-                      {professors[row.professorIdx]}
+                      {professorName}
                     </TableCell>
-                    {time.map((_, timeslotIndex) =>
-                      renderCell(timeslotIndex, row)
-                    )}
+                    {time.map((_, timeslotIndex) => (
+                      renderCell(timeslotIndex, groupedLessons[professorName])
+                    ))}
                   </TableRow>
                 ))}
               </TableBody>
@@ -626,4 +793,6 @@ export default function MainView() {
       </Container>
     </ThemeProvider>
   );
+
+                    
 }
