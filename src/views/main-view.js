@@ -285,14 +285,14 @@ const cell22 = {
 };
 const cell23 = {
   professorIdx: 2,
-  timeIdx: 17,
+  timeIdx: 13,
   subjectIdx: 1,
   classroomIdx: 17,
   classIdx: 2,
 };
 const cell24 = {
   professorIdx: 2,
-  timeIdx: 13,
+  timeIdx: 14,
   subjectIdx: 1,
   classroomIdx: 17,
   classIdx: 3,
@@ -467,7 +467,7 @@ const cell48 = {
 };
 const cell49 = {
   professorIdx: 8,
-  timeIdx: 15,
+  timeIdx: 12,
   subjectIdx: 4,
   classroomIdx: 0,
   classIdx: 2,
@@ -588,14 +588,14 @@ const cell65 = {
 };
 const cell66 = {
   professorIdx: 4,
-  timeIdx: 13,
+  timeIdx: 14,
   subjectIdx: 13,
   classroomIdx: 5,
   classIdx: 2,
 };
 const cell67 = {
   professorIdx: 4,
-  timeIdx: 14,
+  timeIdx: 13,
   subjectIdx: 13,
   classroomIdx: 5,
   classIdx: 3,
@@ -846,10 +846,10 @@ const cell102 = {
   classIdx: 1,
 };
 const cell103 = {
-  professorIdx: 8,
-  timeIdx: 25,
+  professorIdx: 4,
+  timeIdx: 15,
   subjectIdx: 7,
-  classroomIdx: 0,
+  classroomIdx: 5,
   classIdx: 2,
 };
 const cell104 = {
