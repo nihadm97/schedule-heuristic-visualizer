@@ -11,15 +11,15 @@ import React, { useState, useEffect } from 'react';
 
 const professors = [
   "Hozo Minja",
-  "Širbegović Vedina",
+  "Babić Aida",
   "Seno Čolo",
-  "Avdagić Lejla",
-  "Busuladžić Nela",
+  "Hujdur Azemina",
+  "Likić Merima",
   "Zulčić Ankica",
-  "Čolić Adnan",
-  "Softić Adelisa",
+  "Karčić Muhidin",
+  "Kopić Edina",
   "Mehmedović Nihad",
-  "Hujdur Lejla",
+  "Tadić Suada",
 ];
 const subjects = [
   "BHS",
@@ -29,13 +29,13 @@ const subjects = [
   "MAT",
   "HIST",
   "VJE",
-  "INF",
+  "OZ",
   "FIZ",
   "GEO",
   "HEM",
   "DSPK",
   "MAR",
-  "BIZEKO",
+  "EKO",
   "OSEKO",
   "INFTEH",
   "MEĐEKO",
@@ -131,7 +131,7 @@ const classes = [
 
 const cell1 = {
   professorIdx: 0,
-  timeIdx: 0,
+  timeIdx: 4,
   subjectIdx: 0,
   classroomIdx: 15,
   classIdx: 0,
@@ -173,7 +173,7 @@ const cell6 = {
 };
 const cell7 = {
   professorIdx: 0,
-  timeIdx: 9,
+  timeIdx: 6,
   subjectIdx: 0,
   classroomIdx: 15,
   classIdx: 2,
@@ -222,7 +222,7 @@ const cell13 = {
 };
 const cell14 = {
   professorIdx: 2,
-  timeIdx: 2,
+  timeIdx: 5,
   subjectIdx: 1,
   classroomIdx: 17,
   classIdx: 1,
@@ -292,32 +292,575 @@ const cell23 = {
 };
 const cell24 = {
   professorIdx: 2,
-  timeIdx: 18,
+  timeIdx: 13,
   subjectIdx: 1,
   classroomIdx: 17,
   classIdx: 3,
 };
-const cell300 = {
+const cell25 = {
   professorIdx: 1,
-  timeIdx: 0,
-  subjectIdx: 1,
-  classroomIdx: 1,
-  classIdx: 1,
-};
-const cell301 = {
-  professorIdx: 2,
   timeIdx: 2,
   subjectIdx: 2,
-  classroomIdx: 2,
+  classroomIdx: 9,
+  classIdx: 0,
+};
+const cell26 = {
+  professorIdx: 1,
+  timeIdx: 3,
+  subjectIdx: 2,
+  classroomIdx: 9,
+  classIdx: 1,
+};
+const cell27 = {
+  professorIdx: 1,
+  timeIdx: 4,
+  subjectIdx: 2,
+  classroomIdx: 9,
   classIdx: 2,
 };
-const cell302 = {
-  professorIdx: 2,
-  timeIdx: 0,
+const cell28 = {
+  professorIdx: 1,
+  timeIdx: 5,
   subjectIdx: 2,
-  classroomIdx: 2,
+  classroomIdx: 9,
   classIdx: 3,
 };
+const cell29 = {
+  professorIdx: 1,
+  timeIdx: 9,
+  subjectIdx: 2,
+  classroomIdx: 9,
+  classIdx: 0,
+};
+const cell30 = {
+  professorIdx:1,
+  timeIdx: 10,
+  subjectIdx: 2,
+  classroomIdx: 9,
+  classIdx: 1,
+};
+const cell31 = {
+  professorIdx: 1,
+  timeIdx: 11,
+  subjectIdx: 2,
+  classroomIdx: 9,
+  classIdx: 2,
+};
+const cell32 = {
+  professorIdx: 1,
+  timeIdx: 7,
+  subjectIdx: 2,
+  classroomIdx: 9,
+  classIdx: 3,
+};
+const cell33 = {
+  professorIdx: 5,
+  timeIdx: 3,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 0,
+};
+const cell34 = {
+  professorIdx: 5,
+  timeIdx: 4,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 1,
+};
+const cell35 = {
+  professorIdx: 5,
+  timeIdx: 5,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 2,
+};
+const cell36 = {
+  professorIdx: 5,
+  timeIdx: 2,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 3,
+};
+const cell37 = {
+  professorIdx: 5,
+  timeIdx: 10,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 0,
+};
+const cell38 = {
+  professorIdx: 5,
+  timeIdx: 11,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 1,
+};
+const cell39 = {
+  professorIdx: 5,
+  timeIdx: 8,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 2,
+};
+const cell40 = {
+  professorIdx: 5,
+  timeIdx: 9,
+  subjectIdx: 3,
+  classroomIdx: 20,
+  classIdx: 3,
+};
+const cell41 = {
+  professorIdx: 8,
+  timeIdx: 0,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 0,
+};
+const cell42 = {
+  professorIdx: 8,
+  timeIdx: 1,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 3,
+};
+const cell43 = {
+  professorIdx: 8,
+  timeIdx: 2,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 1,
+};
+const cell44 = {
+  professorIdx: 8,
+  timeIdx: 6,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 0,
+};
+const cell45 = {
+  professorIdx: 8,
+  timeIdx: 7,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 2,
+};
+const cell46 = {
+  professorIdx: 8,
+  timeIdx: 8,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 3,
+};
+const cell47 = {
+  professorIdx: 8,
+  timeIdx: 13,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 0,
+};
+const cell48 = {
+  professorIdx: 8,
+  timeIdx: 14,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 1,
+};
+const cell49 = {
+  professorIdx: 8,
+  timeIdx: 15,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 2,
+};
+const cell50 = {
+  professorIdx: 8,
+  timeIdx: 19,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 3,
+};
+const cell51 = {
+  professorIdx: 8,
+  timeIdx: 29,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 0,
+};
+const cell52 = {
+  professorIdx: 8,
+  timeIdx: 21,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 1,
+};
+const cell53 = {
+  professorIdx: 8,
+  timeIdx: 22,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 2,
+};
+
+const cell54 = {
+  professorIdx: 8,
+  timeIdx: 26,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 1,
+};
+const cell55 = {
+  professorIdx: 8,
+  timeIdx: 27,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 2,
+};
+
+const cell56 = {
+  professorIdx: 8,
+  timeIdx: 28,
+  subjectIdx: 4,
+  classroomIdx: 0,
+  classIdx: 3,
+};
+const cell57 = {
+  professorIdx: 3,
+  timeIdx: 12,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 0,
+};
+const cell58 = {
+  professorIdx: 3,
+  timeIdx: 13,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 1,
+};
+const cell59 = {
+  professorIdx: 3,
+  timeIdx: 14,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 2,
+};
+const cell60 = {
+  professorIdx: 3,
+  timeIdx: 15,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 3,
+};
+const cell61 = {
+  professorIdx: 3,
+  timeIdx: 20,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 0,
+};
+const cell62 = {
+  professorIdx: 3,
+  timeIdx: 22,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 1,
+};
+const cell63 = {
+  professorIdx: 3,
+  timeIdx: 21,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 2,
+};
+const cell64 = {
+  professorIdx: 3,
+  timeIdx: 18,
+  subjectIdx: 5,
+  classroomIdx: 7,
+  classIdx: 3,
+};
+const cell65 = {
+  professorIdx: 4,
+  timeIdx: 12,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 1,
+};
+const cell66 = {
+  professorIdx: 4,
+  timeIdx: 13,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 2,
+};
+const cell67 = {
+  professorIdx: 4,
+  timeIdx: 14,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 3,
+};
+const cell68 = {
+  professorIdx: 4,
+  timeIdx: 16,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 0,
+};
+const cell69 = {
+  professorIdx: 4,
+  timeIdx: 18,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 0,
+};
+const cell70 = {
+  professorIdx: 4,
+  timeIdx: 19,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 1,
+};
+const cell71 = {
+  professorIdx: 4,
+  timeIdx: 20,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 2,
+};
+const cell72 = {
+  professorIdx: 4,
+  timeIdx: 21,
+  subjectIdx: 13,
+  classroomIdx: 5,
+  classIdx: 3,
+};
+const cell73 = {
+  professorIdx: 6,
+  timeIdx: 24,
+  subjectIdx: 6,
+  classroomIdx: 3,
+  classIdx: 0,
+};
+const cell74 = {
+  professorIdx: 6,
+  timeIdx: 25,
+  subjectIdx: 6,
+  classroomIdx: 3,
+  classIdx: 1,
+};
+const cell75 = {
+  professorIdx: 6,
+  timeIdx: 26,
+  subjectIdx: 6,
+  classroomIdx: 3,
+  classIdx: 2,
+};
+const cell76 = {
+  professorIdx: 6,
+  timeIdx: 27,
+  subjectIdx: 6,
+  classroomIdx: 3,
+  classIdx: 3,
+};
+const cell77 = {
+  professorIdx: 7,
+  timeIdx: 0,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 1,
+};
+const cell78 = {
+  professorIdx: 7,
+  timeIdx: 1,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 2,
+};
+const cell79 = {
+  professorIdx: 7,
+  timeIdx: 16,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 3,
+};
+const cell80 = {
+  professorIdx: 7,
+  timeIdx: 17,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 0,
+};
+const cell81 = {
+  professorIdx: 7,
+  timeIdx: 18,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 1,
+};
+const cell82 = {
+  professorIdx: 7,
+  timeIdx: 19,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 2,
+};
+const cell83 = {
+  professorIdx: 7,
+  timeIdx: 20,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 3,
+};
+const cell84 = {
+  professorIdx: 7,
+  timeIdx: 21,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 0,
+};
+const cell85 = {
+  professorIdx: 7,
+  timeIdx: 25,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 0,
+};
+const cell86 = {
+  professorIdx: 7,
+  timeIdx: 26,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 3,
+};
+const cell87 = {
+  professorIdx: 7,
+  timeIdx: 27,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 1,
+};
+const cell88 = {
+  professorIdx: 7,
+  timeIdx: 28,
+  subjectIdx: 10,
+  classroomIdx: 8,
+  classIdx: 2,
+};
+const cell89 = {
+  professorIdx: 9,
+  timeIdx: 6,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 3,
+};
+const cell90 = {
+  professorIdx: 9,
+  timeIdx: 7,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 1,
+};
+const cell91 = {
+  professorIdx: 9,
+  timeIdx: 9,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 2,
+};
+const cell92 = {
+  professorIdx: 9,
+  timeIdx: 24,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 3,
+};
+const cell93 = {
+  professorIdx: 9,
+  timeIdx: 18,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 2,
+};
+const cell94 = {
+  professorIdx: 9,
+  timeIdx: 19,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 0,
+};
+const cell95 = {
+  professorIdx: 9,
+  timeIdx: 20,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 1,
+};
+const cell96 = {
+  professorIdx: 9,
+  timeIdx: 25,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 3,
+};
+const cell97 = {
+  professorIdx: 9,
+  timeIdx: 26,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 0,
+};
+const cell98 = {
+  professorIdx: 9,
+  timeIdx: 27,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 0,
+};
+const cell99 = {
+  professorIdx: 9,
+  timeIdx: 28,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 1,
+};
+const cell100 = {
+  professorIdx: 9,
+  timeIdx: 29,
+  subjectIdx: 9,
+  classroomIdx: 13,
+  classIdx: 2,
+};
+const cell101 = {
+  professorIdx: 6,
+  timeIdx: 28,
+  subjectIdx: 7,
+  classroomIdx: 3,
+  classIdx: 0,
+};
+const cell102 = {
+  professorIdx: 7,
+  timeIdx: 29,
+  subjectIdx: 7,
+  classroomIdx: 8,
+  classIdx: 1,
+};
+const cell103 = {
+  professorIdx: 8,
+  timeIdx: 25,
+  subjectIdx: 7,
+  classroomIdx: 0,
+  classIdx: 2,
+};
+const cell104 = {
+  professorIdx: 2,
+  timeIdx: 0,
+  subjectIdx: 7,
+  classroomIdx: 17,
+  classIdx: 3,
+};
+
+
 
 const tempSolution2 = [cell1, cell2, cell3, cell4];
 
@@ -536,7 +1079,7 @@ function cost(x) {
 
 function cost_2(x) {
   let sum = 0;
-  sum += checkProfessorBreakAndNumOfLessons(x);
+  //sum += checkProfessorBreakAndNumOfLessons(x);
   sum += checkForSameProfessorDifferentClass(x);
   //sum += checkClassGapsAndNumOfLessons(x);  // commented to make professor conditions work first
   return sum;
@@ -710,13 +1253,13 @@ const renderCell = (timeslotIndex, professorLessons) => {
   );
 };
 
-const initialSolution1 = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24];
+const initialSolution1 = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24, cell25, cell26, cell27, cell28, cell29, cell30, cell31, cell32, cell33, cell34, cell35, cell36, cell37, cell38, cell39, cell40, cell41, cell42, cell43, cell44, cell45, cell46, cell47, cell48, cell49, cell50, cell51, cell52, cell53, cell54, cell55, cell56, cell57, cell58, cell59, cell60, cell61, cell62, cell63, cell64, cell65, cell66, cell67, cell68, cell69, cell70, cell71, cell72, cell73, cell74, cell75, cell76, cell77, cell78, cell79, cell80, cell81, cell82, cell83, cell84, cell85, cell86, cell87, cell88, cell89, cell90, cell91, cell92, cell93, cell94, cell95, cell96, cell97, cell98, cell99, cell100, cell101, cell102, cell103, cell104];
 console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
 
 
 export default function MainView() {
 
-  const initialSolution = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24];
+  const initialSolution = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24, cell25, cell26, cell27, cell28, cell29, cell30, cell31, cell32, cell33, cell34, cell35, cell36, cell37, cell38, cell39, cell40, cell41, cell42, cell43, cell44, cell45, cell46, cell47, cell48, cell49, cell50, cell51, cell52, cell53, cell54, cell55, cell56, cell57, cell58, cell59, cell60, cell61, cell62, cell63, cell64, cell65, cell66, cell67, cell68, cell69, cell70, cell71, cell72, cell73, cell74, cell75, cell76, cell77, cell78, cell79, cell80, cell81, cell82, cell83, cell84, cell85, cell86, cell87, cell88, cell89, cell90, cell91, cell92, cell93, cell94, cell95, cell96, cell97, cell98, cell99, cell100, cell101, cell102, cell103, cell104];
   const [tempSolution, setTempSolution] = useState(initialSolution);
 
   const groupedLessons = {};
@@ -741,6 +1284,7 @@ export default function MainView() {
     textAlign: "center",
   };
 
+  /* Commented just to show solution made by hand
   useEffect(() => {
     batAlgorithm(
       cost_2,
@@ -758,7 +1302,7 @@ export default function MainView() {
       setTempSolution
     ); 
   }, []);
-
+  */
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
