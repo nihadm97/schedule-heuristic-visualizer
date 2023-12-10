@@ -865,6 +865,105 @@ const cell104 = {
 const tempSolution2 = [cell1, cell2, cell3, cell4];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    ADELISA POKUSAJI    /////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+function calculate_loss(schedule) {
+  let studentOverlapPenalty = 100; // brojeve sam totalno random izabrala
+  let teacherOverlapPenalty = 50;
+  let studentBreakPenalty = 10;
+  let classCountPenalty = 30;
+
+  let totalLoss = 0;
+  let studentTimeSlots = {};
+  let teacherTimeSlots = {};
+
+  // Inicijalizacija struktura za praćenje vremenskih slotova
+  schedule.forEach(cell => {
+      if (!studentTimeSlots[cell.classIdx]) {
+          studentTimeSlots[cell.classIdx] = new Set();
+      }
+      if (!teacherTimeSlots[cell.professorIdx]) {
+          teacherTimeSlots[cell.professorIdx] = new Set();
+      }
+  });
+
+  // Računanje kazni za preklapanje i praćenje broja časova
+  schedule.forEach(cell => {
+      if (studentTimeSlots[cell.classIdx].has(cell.timeIdx)) {
+          totalLoss += studentOverlapPenalty;
+      } else {
+          studentTimeSlots[cell.classIdx].add(cell.timeIdx);
+      }
+
+      if (teacherTimeSlots[cell.professorIdx].has(cell.timeIdx)) {
+          totalLoss += teacherOverlapPenalty;
+      } else {
+          teacherTimeSlots[cell.professorIdx].add(cell.timeIdx);
+      }
+  });
+
+  // Računanje kazni za pauze i broj časova
+  for (let classIdx in studentTimeSlots) {
+      let classHours = studentTimeSlots[classIdx].size;
+      if (classHours < 4 || classHours > 7) {
+          totalLoss += classCountPenalty;
+      }
+  }
+
+  for (let professorIdx in teacherTimeSlots) {
+      let professorHours = teacherTimeSlots[professorIdx].size;
+      if (professorHours > 0 && (professorHours < 2 || professorHours > 7)) {
+          totalLoss += classCountPenalty;
+      }
+  }
+
+  return totalLoss;
+}
+
+function generate_new_schedule(schedule, numberOfChanges) {
+  // Kopiramo raspored kako ne bismo mijenjali original
+  let newSchedule = JSON.parse(JSON.stringify(schedule));
+
+  for (let i = 0; i < numberOfChanges; i++) {
+      // Nasumično odabiremo dva indeksa iz rasporeda za zamjenu
+      let idx1 = Math.floor(Math.random() * newSchedule.length);
+      let idx2 = Math.floor(Math.random() * newSchedule.length);
+
+      // Zamjenjujemo samo timeIdx
+      let tempTimeIdx = newSchedule[idx1].timeIdx;
+      newSchedule[idx1].timeIdx = newSchedule[idx2].timeIdx;
+      newSchedule[idx2].timeIdx = tempTimeIdx;
+  }
+
+  return newSchedule;
+}
+
+function update_schedule(schedule, number_of_iterations) {
+
+  let current_loss = calculate_loss(schedule);
+
+  for (let i = 0; i < number_of_iterations; i++) {
+      // Generišite novi raspored na osnovu neke strategije
+      // Ovdje pretpostavljamo da generate_new_schedule vraća novi raspored sa određenim brojem promjena
+      let new_schedule = generate_new_schedule(schedule, 5); // Broj izmjena može biti prilagođen
+
+      // Izračunajte loss za novi raspored
+      let new_loss = calculate_loss(new_schedule);
+
+      // Ako je novi raspored bolji, ažurirajte trenutni raspored
+      if (new_loss < current_loss) {
+          schedule = new_schedule;
+          current_loss = new_loss;
+      }
+  }
+
+  return schedule;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    HELPER FUNCTIONS    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
