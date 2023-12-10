@@ -1281,6 +1281,23 @@ function canMoveClass(schedule, classToMove, newTimeIdx) {
   return true;
 }
 
+function isScheduleValid(schedule) {
+  for (let i = 0; i < schedule.length; i++) {
+      for (let j = i + 1; j < schedule.length; j++) {
+          const class1 = schedule[i];
+          const class2 = schedule[j];
+
+          if (class1.timeIdx === class2.timeIdx) {
+              if (class1.professorIdx === class2.professorIdx ||
+                  class1.classroomIdx === class2.classroomIdx ||
+                  class1.classIdx === class2.classIdx) {
+                  return false;
+              }
+          }
+      }
+  }
+  return true;
+}
 
 function optimizeScheduleByProfessor(initialSolution, setTempSolution) {
   const professors = getAllProfessors(initialSolution);
