@@ -416,19 +416,6 @@ const cell41 = {
   classroomIdx: 0,
   classIdx: 0,
 };
-const oneCellInSolution2 = {
-  professorIdx: 1,
-  timeIdx: 0,
-  subjectIdx: 1,
-  classroomIdx: 1,
-  classIdx: 1,
-};
-const oneCellInSolution3 = {
-  professorIdx: 2,
-  timeIdx: 0,
-  subjectIdx: 2,
-  classroomIdx: 2,
-};
 const cell42 = {
   professorIdx: 8,
   timeIdx: 1,
@@ -514,38 +501,6 @@ const cell53 = {
   classIdx: 2,
 };
 
-// const cell1 = {
-//   professorIdx: 0,
-//   timeIdx: 2,
-//   subjectIdx: 0,
-//   classroomIdx: 0,
-//   classIdx: 0,
-// };
-// const cell2 = {
-//   professorIdx: 1,
-//   timeIdx: 0,
-//   subjectIdx: 1,
-//   classroomIdx: 1,
-//   classIdx: 1,
-// };
-// const cell3 = {
-//   professorIdx: 2,
-//   timeIdx: 3,
-//   subjectIdx: 2,
-//   classroomIdx: 2,
-//   classIdx: 2,
-// };
-// const cell4 = {
-//   professorIdx: 2,
-//   timeIdx: 3,
-//   subjectIdx: 2,
-//   classroomIdx: 2,
-//   classIdx: 3,
-// };
-
-const tempSolution2 = [cell1, cell2, cell3, cell4];
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 const cell54 = {
   professorIdx: 8,
   timeIdx: 26,
@@ -905,7 +860,7 @@ const cell104 = {
   classIdx: 3,
 };
 
-// const tempSolution2 = [cell1, cell2, cell3, cell4];
+const tempSolution2 = [cell1, cell2, cell3, cell4];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    ADELISA POKUSAJI    /////////////////////////////////////
@@ -1576,56 +1531,7 @@ function optimizeScheduleByProfessor(initialSolution, setTempSolution) {
   return schedule;
 }
 
-// console.log("test 2", cost_2(tempSolution2), tempSolution2);
-
-// bat algorithm for finding best timeslots for tempSolution, rewrites the tempSolution with new timeslots
-// bestBat variable includes best timeslots for tempSolution
-
-// Call the batAlgorithm() function with optional parameters
-//const result = batAlgorithm(cost);
-// const result = batAlgorithm(
-//   cost,
-//   150,
-//   10000,
-//   100,
-//   tempSolution,
-//   2,
-//   1,
-//   -10,
-//   10,
-//   0,
-//   time.length
-// );
-// console.log(result);
-
 export default function MainView() {
-  const renderCell = (timeslotIndex, row) => {
-    const cellStyles = {
-      bgcolor:
-        timeslotIndex === row.timeIdx ? "secondary.main" : "background.paper",
-      color: timeslotIndex === row.timeIdx ? "common.white" : "text.primary",
-      textAlign: "center",
-      borderRight:
-        timeslotIndex < time.length - 1
-          ? "1px solid rgba(224, 224, 224, 1)"
-          : "",
-    };
-
-    return (
-      <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
-        {timeslotIndex === row.timeIdx && (
-          <>
-            {classes[row.classIdx]}
-            <br />
-            {classrooms[row.classroomIdx]}
-            <br />
-            {subjects[row.subjectIdx]}
-          </>
-        )}
-      </TableCell>
-    );
-  };
-
   let initialSolution = [
     cell1,
     cell2,
