@@ -13,6 +13,7 @@ import {
   checkForSameProfessorDifferentClass,
   checkClassGapsAndNumOfLessons,
   checkProfessorBreakAndNumOfLessons,
+  checkForSameClassDifferentClass,
   getRdn,
   checkBound,
   average,
@@ -238,11 +239,153 @@ function cost(x) {
 
 function cost_2(x) {
   let sum = 0;
-  //sum += checkProfessorBreakAndNumOfLessons(x);
+  sum += checkProfessorBreakAndNumOfLessons(x);
   sum += checkForSameProfessorDifferentClass(x);
-  //sum += checkClassGapsAndNumOfLessons(x);  // commented to make professor conditions work first
+  sum += checkClassGapsAndNumOfLessons(x); // commented to make professor conditions work first
+  sum += checkForSameClassDifferentClass(x);
   return sum;
 }
+
+const cell1Test = {
+  professorIdx: 0,
+  timeIdx: 0,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 0,
+};
+const cell2Test = {
+  professorIdx: 0,
+  timeIdx: 1,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 1,
+};
+const cell3Test = {
+  professorIdx: 0,
+  timeIdx: 2,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 2,
+};
+const cell4Test = {
+  professorIdx: 0,
+  timeIdx: 3,
+  subjectIdx: 0,
+  classroomIdx: 15,
+  classIdx: 3,
+};
+
+const tempSolution3 = [cell1Test, cell2Test, cell3Test, cell4Test];
+
+const initialSolutionTest = [
+  cell1,
+  cell2,
+  cell3,
+  cell4,
+  cell5,
+  cell6,
+  cell7,
+  cell8,
+  cell9,
+  cell10,
+  cell11,
+  cell12,
+  cell13,
+  cell14,
+  cell15,
+  cell16,
+  cell17,
+  cell18,
+  cell19,
+  cell20,
+  cell21,
+  cell22,
+  cell23,
+  cell24,
+  cell25,
+  cell26,
+  cell27,
+  cell28,
+  cell29,
+  cell30,
+  cell31,
+  cell32,
+  cell33,
+  cell34,
+  cell35,
+  cell36,
+  cell37,
+  cell38,
+  cell39,
+  cell40,
+  cell41,
+  cell42,
+  cell43,
+  cell44,
+  cell45,
+  cell46,
+  cell47,
+  cell48,
+  cell49,
+  cell50,
+  cell51,
+  cell52,
+  cell53,
+  cell54,
+  cell55,
+  cell56,
+  cell57,
+  cell58,
+  cell59,
+  cell60,
+  cell61,
+  cell62,
+  cell63,
+  cell64,
+  cell65,
+  cell66,
+  cell67,
+  cell68,
+  cell69,
+  cell70,
+  cell71,
+  cell72,
+  cell73,
+  cell74,
+  cell75,
+  cell76,
+  cell77,
+  cell78,
+  cell79,
+  cell80,
+  cell81,
+  cell82,
+  cell83,
+  cell84,
+  cell85,
+  cell86,
+  cell87,
+  cell88,
+  cell89,
+  cell90,
+  cell91,
+  cell92,
+  cell93,
+  cell94,
+  cell95,
+  cell96,
+  cell97,
+  cell98,
+  cell99,
+  cell100,
+  cell101,
+  cell102,
+  cell103,
+  cell104,
+];
+//console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
+
+console.log(cost_2(initialSolutionTest));
 
 function switchTimes(arrayTimes, arraySolution) {
   let arrayTemp = arraySolution;
