@@ -865,6 +865,105 @@ const cell104 = {
 const tempSolution2 = [cell1, cell2, cell3, cell4];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    ADELISA POKUSAJI    /////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+function calculate_loss(schedule) {
+  let studentOverlapPenalty = 100; // brojeve sam totalno random izabrala
+  let teacherOverlapPenalty = 50;
+  let studentBreakPenalty = 10;
+  let classCountPenalty = 30;
+
+  let totalLoss = 0;
+  let studentTimeSlots = {};
+  let teacherTimeSlots = {};
+
+  // Inicijalizacija struktura za praćenje vremenskih slotova
+  schedule.forEach(cell => {
+      if (!studentTimeSlots[cell.classIdx]) {
+          studentTimeSlots[cell.classIdx] = new Set();
+      }
+      if (!teacherTimeSlots[cell.professorIdx]) {
+          teacherTimeSlots[cell.professorIdx] = new Set();
+      }
+  });
+
+  // Računanje kazni za preklapanje i praćenje broja časova
+  schedule.forEach(cell => {
+      if (studentTimeSlots[cell.classIdx].has(cell.timeIdx)) {
+          totalLoss += studentOverlapPenalty;
+      } else {
+          studentTimeSlots[cell.classIdx].add(cell.timeIdx);
+      }
+
+      if (teacherTimeSlots[cell.professorIdx].has(cell.timeIdx)) {
+          totalLoss += teacherOverlapPenalty;
+      } else {
+          teacherTimeSlots[cell.professorIdx].add(cell.timeIdx);
+      }
+  });
+
+  // Računanje kazni za pauze i broj časova
+  for (let classIdx in studentTimeSlots) {
+      let classHours = studentTimeSlots[classIdx].size;
+      if (classHours < 4 || classHours > 7) {
+          totalLoss += classCountPenalty;
+      }
+  }
+
+  for (let professorIdx in teacherTimeSlots) {
+      let professorHours = teacherTimeSlots[professorIdx].size;
+      if (professorHours > 0 && (professorHours < 2 || professorHours > 7)) {
+          totalLoss += classCountPenalty;
+      }
+  }
+
+  return totalLoss;
+}
+
+function generate_new_schedule(schedule, numberOfChanges) {
+  // Kopiramo raspored kako ne bismo mijenjali original
+  let newSchedule = JSON.parse(JSON.stringify(schedule));
+
+  for (let i = 0; i < numberOfChanges; i++) {
+      // Nasumično odabiremo dva indeksa iz rasporeda za zamjenu
+      let idx1 = Math.floor(Math.random() * newSchedule.length);
+      let idx2 = Math.floor(Math.random() * newSchedule.length);
+
+      // Zamjenjujemo samo timeIdx
+      let tempTimeIdx = newSchedule[idx1].timeIdx;
+      newSchedule[idx1].timeIdx = newSchedule[idx2].timeIdx;
+      newSchedule[idx2].timeIdx = tempTimeIdx;
+  }
+
+  return newSchedule;
+}
+
+function update_schedule(schedule, number_of_iterations) {
+
+  let current_loss = calculate_loss(schedule);
+
+  for (let i = 0; i < number_of_iterations; i++) {
+      // Generišite novi raspored na osnovu neke strategije
+      // Ovdje pretpostavljamo da generate_new_schedule vraća novi raspored sa određenim brojem promjena
+      let new_schedule = generate_new_schedule(schedule, 5); // Broj izmjena može biti prilagođen
+
+      // Izračunajte loss za novi raspored
+      let new_loss = calculate_loss(new_schedule);
+
+      // Ako je novi raspored bolji, ažurirajte trenutni raspored
+      if (new_loss < current_loss) {
+          schedule = new_schedule;
+          current_loss = new_loss;
+      }
+  }
+
+  return schedule;
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    HELPER FUNCTIONS    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1254,14 +1353,87 @@ const renderCell = (timeslotIndex, professorLessons) => {
 };
 
 const initialSolution1 = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24, cell25, cell26, cell27, cell28, cell29, cell30, cell31, cell32, cell33, cell34, cell35, cell36, cell37, cell38, cell39, cell40, cell41, cell42, cell43, cell44, cell45, cell46, cell47, cell48, cell49, cell50, cell51, cell52, cell53, cell54, cell55, cell56, cell57, cell58, cell59, cell60, cell61, cell62, cell63, cell64, cell65, cell66, cell67, cell68, cell69, cell70, cell71, cell72, cell73, cell74, cell75, cell76, cell77, cell78, cell79, cell80, cell81, cell82, cell83, cell84, cell85, cell86, cell87, cell88, cell89, cell90, cell91, cell92, cell93, cell94, cell95, cell96, cell97, cell98, cell99, cell100, cell101, cell102, cell103, cell104];
-console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
+//console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
+
+
+function getAllProfessors(schedule) {
+  const professorIndices = new Set(); 
+
+  for (let cell of schedule) {
+      professorIndices.add(cell.professorIdx); 
+  }
+
+  return Array.from(professorIndices); 
+}
+
+function canMoveClass(schedule, classToMove, newTimeIdx) {
+  // Ovdje provjeravamo da li se trazeni cas moze pomjeriti unazad
+  // na novi vremenski indeks/termin
+  for (let otherClass of schedule) {
+    if (otherClass !== classToMove && otherClass.timeIdx === newTimeIdx) {
+        if (otherClass.classroomIdx === classToMove.classroomIdx || 
+            otherClass.classIdx === classToMove.classIdx) {
+            return false;
+        }
+    }
+  }
+  return true;
+}
+
+function isScheduleValid(schedule) {
+  for (let i = 0; i < schedule.length; i++) {
+      for (let j = i + 1; j < schedule.length; j++) {
+          const class1 = schedule[i];
+          const class2 = schedule[j];
+
+          if (class1.timeIdx === class2.timeIdx) {
+              if (class1.professorIdx === class2.professorIdx ||
+                  class1.classroomIdx === class2.classroomIdx ||
+                  class1.classIdx === class2.classIdx) {
+                  return false;
+              }
+          }
+      }
+  }
+  return true;
+}
+
+function optimizeScheduleByProfessor(initialSolution, setTempSolution) {
+  const professors = getAllProfessors(initialSolution);
+  let schedule = [...initialSolution];
+
+  for (let professor of professors) {
+      let professorsClasses = schedule.filter(c => c.professorIdx === professor);
+      // Sortiranje časova po  terminu
+      professorsClasses.sort((a, b) => a.timeIdx - b.timeIdx);
+
+      let earliestAvailableTime = 0;
+      for (let classToMove of professorsClasses) {
+          while (earliestAvailableTime < classToMove.timeIdx) {
+              // Pokusavamo vratiti cas unazad na ustrb profesora
+              // Ako je dat neki termin daleko, a studentima se moze ubaciti taj termin
+              // onda ga ubacimo u najraniji moguci
+              // Ovim smo osigurali da je raspored studentima prepunjen
+              if (canMoveClass(schedule, classToMove, earliestAvailableTime)) {
+                  classToMove.timeIdx = earliestAvailableTime;
+                  break;
+              }
+              earliestAvailableTime++;
+          }
+          // Updateovanje najranijeg slobodnog vremena za sljedeći čas
+          earliestAvailableTime = classToMove.timeIdx + 1;
+      }
+  }
+  setTempSolution(schedule);
+
+  return schedule;
+}
 
 
 export default function MainView() {
 
-  const initialSolution = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24, cell25, cell26, cell27, cell28, cell29, cell30, cell31, cell32, cell33, cell34, cell35, cell36, cell37, cell38, cell39, cell40, cell41, cell42, cell43, cell44, cell45, cell46, cell47, cell48, cell49, cell50, cell51, cell52, cell53, cell54, cell55, cell56, cell57, cell58, cell59, cell60, cell61, cell62, cell63, cell64, cell65, cell66, cell67, cell68, cell69, cell70, cell71, cell72, cell73, cell74, cell75, cell76, cell77, cell78, cell79, cell80, cell81, cell82, cell83, cell84, cell85, cell86, cell87, cell88, cell89, cell90, cell91, cell92, cell93, cell94, cell95, cell96, cell97, cell98, cell99, cell100, cell101, cell102, cell103, cell104];
+  let initialSolution = [cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9, cell10, cell11, cell12, cell13, cell14, cell15, cell16, cell17, cell18, cell19, cell20, cell21, cell22, cell23, cell24, cell25, cell26, cell27, cell28, cell29, cell30, cell31, cell32, cell33, cell34, cell35, cell36, cell37, cell38, cell39, cell40, cell41, cell42, cell43, cell44, cell45, cell46, cell47, cell48, cell49, cell50, cell51, cell52, cell53, cell54, cell55, cell56, cell57, cell58, cell59, cell60, cell61, cell62, cell63, cell64, cell65, cell66, cell67, cell68, cell69, cell70, cell71, cell72, cell73, cell74, cell75, cell76, cell77, cell78, cell79, cell80, cell81, cell82, cell83, cell84, cell85, cell86, cell87, cell88, cell89, cell90, cell91, cell92, cell93, cell94, cell95, cell96, cell97, cell98, cell99, cell100, cell101, cell102, cell103, cell104];
   const [tempSolution, setTempSolution] = useState(initialSolution);
-
   const groupedLessons = {};
   tempSolution.forEach(lesson => {
       const professorName = professors[lesson.professorIdx];
@@ -1284,8 +1456,10 @@ export default function MainView() {
     textAlign: "center",
   };
 
-  /* Commented just to show solution made by hand
+  /* Commented just to show solution made by hand */
   useEffect(() => {
+    optimizeScheduleByProfessor(initialSolution, setTempSolution);
+    /*
     batAlgorithm(
       cost_2,
       150,
@@ -1301,8 +1475,9 @@ export default function MainView() {
       tempSolution,
       setTempSolution
     ); 
+    */
   }, []);
-  */
+  
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
