@@ -213,7 +213,7 @@ export const checkForSameProfessorDifferentClass = (solution) => {
   return sum; //   We didnt find double times for the same professor
 };
 
-export const checkForSameClassDifferentClass = (solution) => {
+export const checkForSameClassDifferentSubject = (solution) => {
   //  we will accumulate penalties in this variable
   let sum = 0;
 
