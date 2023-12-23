@@ -13,7 +13,7 @@ import {
   checkForSameProfessorDifferentClass,
   checkClassGapsAndNumOfLessons,
   checkProfessorBreakAndNumOfLessons,
-  checkForSameClassDifferentClass,
+  checkForSameClassDifferentSubject,
   getRdn,
   checkBound,
   average,
@@ -242,7 +242,7 @@ function cost_2(x) {
   sum += checkProfessorBreakAndNumOfLessons(x);
   sum += checkForSameProfessorDifferentClass(x);
   sum += checkClassGapsAndNumOfLessons(x); // commented to make professor conditions work first
-  sum += checkForSameClassDifferentClass(x);
+  sum += checkForSameClassDifferentSubject(x);
   return sum;
 }
 
