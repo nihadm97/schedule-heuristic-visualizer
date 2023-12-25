@@ -400,6 +400,89 @@ function switchTimes(arrayTimes, arraySolution) {
   return arrayTemp;
 }
 
+// tabu search
+function generateNeighbors(schedule) {
+  let neighbors = [];
+  const numberOfChanges = 10;
+
+  for (let i = 0; i < numberOfChanges; i++) {
+      let newSchedule = JSON.parse(JSON.stringify(schedule));
+      let randomIndex = Math.floor(Math.random() * newSchedule.length);
+      let randomChange = Math.random() > 0.5 ? 'timeIdx' : 'classroomIdx';
+
+      if (randomChange === 'timeIdx') {
+          newSchedule[randomIndex].timeIdx = Math.floor(Math.random() * time.length);
+      } else { 
+          newSchedule[randomIndex].classroomIdx = Math.floor(Math.random() * classrooms.length);
+      }
+
+      neighbors.push(newSchedule);
+  }
+
+  return neighbors;
+}
+
+function isInTabuList(schedule, tabuList) {
+  let scheduleString = JSON.stringify(schedule);
+  return tabuList.includes(scheduleString);
+}
+
+function updateTabuList(tabuList, schedule, maxSize = 100) {
+  let scheduleString = JSON.stringify(schedule);
+  if (!tabuList.includes(scheduleString)){
+    tabuList.push(scheduleString);
+  }
+
+  if (tabuList.length > maxSize) {
+      tabuList.shift();
+  }
+}
+
+function tabuSearchOptimization(initialSchedule, number_of_iterations) {
+  let currentSchedule = initialSchedule;
+  let currentCost = cost_2(currentSchedule);
+  let tabuList = [];
+  let bestSchedule = currentSchedule;
+  let bestCost = currentCost;
+
+  for (let i = 0; i < number_of_iterations; i++) {
+      // Generisanje susjednih rasporeda
+      let neighbors = generateNeighbors(currentSchedule);
+
+      // Filtriranje onih koji su već na tabu listi
+      neighbors = neighbors.filter(schedule => !isInTabuList(schedule, tabuList));
+
+      let bestNeighbor = null;
+      let bestNeighborCost = Infinity;
+
+      // Pronalaženje najboljeg susjeda koji nije na tabu listi
+      for (let neighbor of neighbors) {
+          let cost = cost_2(neighbor);
+          if (cost > bestNeighborCost && !isInTabuList(neighbor, tabuList)) {
+              bestNeighbor = neighbor;
+              bestNeighborCost = cost;
+          }
+      }
+
+      // Ažuriranje trenutnog rasporeda i tabu liste
+      if (bestNeighbor) {
+          currentSchedule = bestNeighbor;
+          currentCost = bestNeighborCost;
+          updateTabuList(tabuList, bestNeighbor);
+          
+          // Ažuriranje najboljeg pronađenog rasporeda
+          if (currentCost < bestCost) {
+              bestSchedule = currentSchedule;
+              bestCost = currentCost;
+          }
+      }
+  }
+
+  // Vraćanje najboljeg rasporeda pronađenog tokom pretrage
+  return bestSchedule;
+}
+
+
 // bat algorithm for finding best timeslots for tempSolution, rewrites the tempSolution with new timeslots
 // bestBat variable includes best timeslots for tempSolution
 function batAlgorithm(
@@ -664,6 +747,9 @@ const initialSolution1 = [
   cell104,
 ];
 //console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
+
+console.log("Ovo je idealno rjesenje:")
+console.log(tabuSearchOptimization(initialSolution1, 15))
 
 function getAllProfessors(schedule) {
   const professorIndices = new Set();
