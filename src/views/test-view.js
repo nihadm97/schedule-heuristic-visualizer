@@ -134,7 +134,7 @@ import ScheduleContext from "@/context/scheduleContext";
 import Link from "next/link";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    TABLU SEACH    /////////////////////////////////////
+////////////////////////////////////    TABU SEACH    ///////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 function cost_2(x) {
@@ -267,7 +267,7 @@ function switchTimes(arrayTimes, arraySolution) {
 // tabu search
 function generateNeighbors(schedule) {
   let neighbors = [];
-  const numberOfChanges = 10;
+  const numberOfChanges = Math.floor(schedule.length/2);
 
   for (let i = 0; i < numberOfChanges; i++) {
       let newSchedule = JSON.parse(JSON.stringify(schedule));
@@ -637,123 +637,66 @@ const initialSolution1 = [
 ////////////////////////////////////    2-OPT ALGORITHM    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-function generate_new_schedule(schedule, numberOfChanges) {
-  // Kopiramo raspored kako ne bismo mijenjali original
-  let newSchedule = JSON.parse(JSON.stringify(schedule));
+function generateImprovedSchedule(currentSchedule, costFunc) {
+  let bestSchedule = currentSchedule;
+  let bestCost = costFunc(currentSchedule);
 
-  for (let i = 0; i < numberOfChanges; i++) {
-    // Nasumično odabiremo dva indeksa iz rasporeda za zamjenu
-    let idx1 = Math.floor(Math.random() * newSchedule.length);
-    let idx2 = Math.floor(Math.random() * newSchedule.length);
+  for (let i = 0; i < currentSchedule.length; i++) {
+      for (let j = i+1; j < currentSchedule.length; j++) {
+          let modifiedSchedule = modifyScheduleTime(bestSchedule, i, j);
+          let modifiedCost = costFunc(modifiedSchedule);
 
-    // Zamjenjujemo samo timeIdx
-    let tempTimeIdx = newSchedule[idx1].timeIdx;
-    newSchedule[idx1].timeIdx = newSchedule[idx2].timeIdx;
-    newSchedule[idx2].timeIdx = tempTimeIdx;
+          if (modifiedCost < bestCost) {
+              bestSchedule = modifiedSchedule;
+              bestCost = modifiedCost;
+          }
+      }
   }
+
+  return bestSchedule;
+}
+
+// S ovom mijenjamo vremena
+function modifyScheduleTime(schedule, index1, index2) {
+  let newSchedule = JSON.parse(JSON.stringify(schedule));
+  // Vršenje zamjene vremenskih indeksa između i-tog i j-tog časa
+  let tempTimeIdx = newSchedule[index1].timeIdx;
+  newSchedule[index1].timeIdx = newSchedule[index2].timeIdx;
+  newSchedule[index2].timeIdx = tempTimeIdx;
 
   return newSchedule;
 }
 
-function update_schedule(schedule, number_of_iterations) {
-  let current_loss = cost_2(schedule);
+// S ovom mijenjamo ucionice
+function modifyScheduleClass(schedule, index1, index2) {
+  let newSchedule = JSON.parse(JSON.stringify(schedule));
+  // Vršenje zamjene ucionica između i-tog i j-tog časa
+  let tempClassroomIdx = newSchedule[index1].classroomIdx ;
+  newSchedule[index1].classroomIdx  = newSchedule[index2].classroomIdx ;
+  newSchedule[index2].classroomIdx  = tempClassroomIdx ;
 
-  for (let i = 0; i < number_of_iterations; i++) {
-    // Generišite novi raspored na osnovu neke strategije
-    // Ovdje pretpostavljamo da generate_new_schedule vraća novi raspored sa određenim brojem promjena
-    let new_schedule = generate_new_schedule(schedule, 5); // Broj izmjena može biti prilagođen
-
-    // Izračunajte loss za novi raspored
-    let new_loss = cost_2(new_schedule);
-
-    // Ako je novi raspored bolji, ažurirajte trenutni raspored
-    if (new_loss > current_loss) {
-      schedule = new_schedule;
-      current_loss = new_loss;
-    }
-  }
-
-  return schedule;
+  return newSchedule;
 }
 
-function getAllProfessors(schedule) {
-  const professorIndices = new Set();
+function optimizeScheduleWith2Opt(initialSchedule) {
+  let bestSchedule = initialSchedule;
+  let bestCost = cost_2(bestSchedule);
 
-  for (let cell of schedule) {
-    professorIndices.add(cell.professorIdx);
-  }
-
-  return Array.from(professorIndices);
-}
-
-function canMoveClass(schedule, classToMove, newTimeIdx) {
-  // Ovdje provjeravamo da li se trazeni cas moze pomjeriti unazad
-  // na novi vremenski indeks/termin
-  for (let otherClass of schedule) {
-    if (otherClass !== classToMove && otherClass.timeIdx === newTimeIdx) {
-      if (
-        otherClass.classroomIdx === classToMove.classroomIdx ||
-        otherClass.classIdx === classToMove.classIdx
-      ) {
-        return false;
+  while (true) {
+      let two_opt_solution = generateImprovedSchedule(bestSchedule);
+      if (cost_2(two_opt_solution) >= bestCost){
+        bestCost = cost_2(two_opt_solution);
+        bestSchedule = two_opt_solution;
       }
-    }
-  }
-  return true;
-}
-
-function isScheduleValid(schedule) {
-  for (let i = 0; i < schedule.length; i++) {
-    for (let j = i + 1; j < schedule.length; j++) {
-      const class1 = schedule[i];
-      const class2 = schedule[j];
-
-      if (class1.timeIdx === class2.timeIdx) {
-        if (
-          class1.professorIdx === class2.professorIdx ||
-          class1.classroomIdx === class2.classroomIdx ||
-          class1.classIdx === class2.classIdx
-        ) {
-          return false;
-        }
+      else{
+        break
       }
-    }
   }
-  return true;
+
+  return bestSchedule;
 }
 
-function optimizeScheduleByProfessor(initialSolution, setTempSolution) {
-  const professors = getAllProfessors(initialSolution);
-  let schedule = [...initialSolution];
 
-  for (let professor of professors) {
-    let professorsClasses = schedule.filter(
-      (c) => c.professorIdx === professor
-    );
-    // Sortiranje časova po  terminu
-    professorsClasses.sort((a, b) => a.timeIdx - b.timeIdx);
-
-    let earliestAvailableTime = 0;
-    for (let classToMove of professorsClasses) {
-      while (earliestAvailableTime < classToMove.timeIdx) {
-        // Pokusavamo vratiti cas unazad na ustrb profesora
-        // Ako je dat neki termin daleko, a studentima se moze ubaciti taj termin
-        // onda ga ubacimo u najraniji moguci
-        // Ovim smo osigurali da je raspored studentima prepunjen
-        if (canMoveClass(schedule, classToMove, earliestAvailableTime)) {
-          classToMove.timeIdx = earliestAvailableTime;
-          break;
-        }
-        earliestAvailableTime++;
-      }
-      // Updateovanje najranijeg slobodnog vremena za sljedeći čas
-      earliestAvailableTime = classToMove.timeIdx + 1;
-    }
-  }
-  setTempSolution(schedule);
-
-  return schedule;
-}
 
 export default function MainView() {
   const { selectedClassIdx, setSelectedClassIdx, schedule, setSchedule } =
