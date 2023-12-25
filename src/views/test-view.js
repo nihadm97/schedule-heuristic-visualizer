@@ -637,14 +637,14 @@ const initialSolution1 = [
 ////////////////////////////////////    2-OPT ALGORITHM    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-function generateImprovedSchedule(currentSchedule, costFunc) {
+function generateImprovedSchedule(currentSchedule) {
   let bestSchedule = currentSchedule;
-  let bestCost = costFunc(currentSchedule);
+  let bestCost = cost_2(currentSchedule);
 
   for (let i = 0; i < currentSchedule.length; i++) {
       for (let j = i+1; j < currentSchedule.length; j++) {
           let modifiedSchedule = modifyScheduleTime(bestSchedule, i, j);
-          let modifiedCost = costFunc(modifiedSchedule);
+          let modifiedCost = cost_2(modifiedSchedule);
 
           if (modifiedCost < bestCost) {
               bestSchedule = modifiedSchedule;
@@ -678,10 +678,20 @@ function modifyScheduleClass(schedule, index1, index2) {
   return newSchedule;
 }
 
-function optimizeScheduleWith2Opt(initialSchedule) {
-  let bestSchedule = initialSchedule;
-  let bestCost = cost_2(bestSchedule);
+function optimizeScheduleWith2Opt(initialSchedule, setTempSolution) {
 
+  let bestSchedule = initialSchedule;
+  let position = [];
+  let lowerBound = 0;
+  let upperBound = time.length - 1;
+  for (let i = 0; i < bestSchedule.length; i++) {
+    position[i] = Math.round(getRdn(lowerBound, upperBound));
+  }
+  switchTimes(position, bestSchedule);
+
+  let bestCost = cost_2(bestSchedule);
+  console.log(bestCost);
+  
   while (true) {
       let two_opt_solution = generateImprovedSchedule(bestSchedule);
       if (cost_2(two_opt_solution) >= bestCost){
@@ -693,6 +703,7 @@ function optimizeScheduleWith2Opt(initialSchedule) {
       }
   }
 
+  setTempSolution(bestSchedule);
   return bestSchedule;
 }
 
@@ -836,7 +847,7 @@ export default function MainView() {
   useEffect(() => {
     //optimizeScheduleByProfessor(initialSolution, setTempSolution);
     //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
-    
+    /*
     batAlgorithm(
       cost_2,
       150,
@@ -852,7 +863,8 @@ export default function MainView() {
       tempSolution,
       setTempSolution
     ); 
-    
+    */
+    optimizeScheduleWith2Opt(initialSolution, setTempSolution);
   }, []);
 
   return (
