@@ -226,7 +226,7 @@ export const checkForSameClassDifferentSubject = (solution) => {
         solution[j].classIdx === i &&
         timesForClass[solution[j].timeIdx] === true
       ) {
-        console.log(solution[j].classIdx, solution[j].timeIdx, j);
+        //console.log(solution[j].classIdx, solution[j].timeIdx, j);
         sum -= 10000; //    We found a cell in which is class assigned to a time in which they are already assigned
       } else if (
         solution[j].classIdx === i &&
@@ -237,7 +237,7 @@ export const checkForSameClassDifferentSubject = (solution) => {
         continue;
       }
     }
-    console.log("times for class", timesForClass);
+    //console.log("times for class", timesForClass);
   }
   return sum; //   We didnt find double times for the same calss
 };
@@ -341,7 +341,7 @@ export const checkProfessorBreakAndNumOfLessons = (solution) => {
     if (
       checkIfProfessorDayIsContinousOrWithOneBreak(allClassTimesFound) == false
     ) {
-      sum -= 10;
+      sum -= 50;
     }
   }
   return sum; //   We didnt find double times for the same professor

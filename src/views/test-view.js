@@ -134,110 +134,8 @@ import ScheduleContext from "@/context/scheduleContext";
 import Link from "next/link";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////    ADELISA POKUSAJI    /////////////////////////////////////
+////////////////////////////////////    TABLU SEACH    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
-
-function calculate_loss(schedule) {
-  let studentOverlapPenalty = 100; // brojeve sam totalno random izabrala
-  let teacherOverlapPenalty = 50;
-  let studentBreakPenalty = 10;
-  let classCountPenalty = 30;
-
-  let totalLoss = 0;
-  let studentTimeSlots = {};
-  let teacherTimeSlots = {};
-
-  // Inicijalizacija struktura za praćenje vremenskih slotova
-  schedule.forEach((cell) => {
-    if (!studentTimeSlots[cell.classIdx]) {
-      studentTimeSlots[cell.classIdx] = new Set();
-    }
-    if (!teacherTimeSlots[cell.professorIdx]) {
-      teacherTimeSlots[cell.professorIdx] = new Set();
-    }
-  });
-
-  // Računanje kazni za preklapanje i praćenje broja časova
-  schedule.forEach((cell) => {
-    if (studentTimeSlots[cell.classIdx].has(cell.timeIdx)) {
-      totalLoss += studentOverlapPenalty;
-    } else {
-      studentTimeSlots[cell.classIdx].add(cell.timeIdx);
-    }
-
-    if (teacherTimeSlots[cell.professorIdx].has(cell.timeIdx)) {
-      totalLoss += teacherOverlapPenalty;
-    } else {
-      teacherTimeSlots[cell.professorIdx].add(cell.timeIdx);
-    }
-  });
-
-  // Računanje kazni za pauze i broj časova
-  for (let classIdx in studentTimeSlots) {
-    let classHours = studentTimeSlots[classIdx].size;
-    if (classHours < 4 || classHours > 7) {
-      totalLoss += classCountPenalty;
-    }
-  }
-
-  for (let professorIdx in teacherTimeSlots) {
-    let professorHours = teacherTimeSlots[professorIdx].size;
-    if (professorHours > 0 && (professorHours < 2 || professorHours > 7)) {
-      totalLoss += classCountPenalty;
-    }
-  }
-
-  return totalLoss;
-}
-
-function generate_new_schedule(schedule, numberOfChanges) {
-  // Kopiramo raspored kako ne bismo mijenjali original
-  let newSchedule = JSON.parse(JSON.stringify(schedule));
-
-  for (let i = 0; i < numberOfChanges; i++) {
-    // Nasumično odabiremo dva indeksa iz rasporeda za zamjenu
-    let idx1 = Math.floor(Math.random() * newSchedule.length);
-    let idx2 = Math.floor(Math.random() * newSchedule.length);
-
-    // Zamjenjujemo samo timeIdx
-    let tempTimeIdx = newSchedule[idx1].timeIdx;
-    newSchedule[idx1].timeIdx = newSchedule[idx2].timeIdx;
-    newSchedule[idx2].timeIdx = tempTimeIdx;
-  }
-
-  return newSchedule;
-}
-
-function update_schedule(schedule, number_of_iterations) {
-  let current_loss = calculate_loss(schedule);
-
-  for (let i = 0; i < number_of_iterations; i++) {
-    // Generišite novi raspored na osnovu neke strategije
-    // Ovdje pretpostavljamo da generate_new_schedule vraća novi raspored sa određenim brojem promjena
-    let new_schedule = generate_new_schedule(schedule, 5); // Broj izmjena može biti prilagođen
-
-    // Izračunajte loss za novi raspored
-    let new_loss = calculate_loss(new_schedule);
-
-    // Ako je novi raspored bolji, ažurirajte trenutni raspored
-    if (new_loss < current_loss) {
-      schedule = new_schedule;
-      current_loss = new_loss;
-    }
-  }
-
-  return schedule;
-}
-
-// Define the cost function
-function cost(x) {
-  // temporaly cost function
-  let sum = 0;
-  for (let i = 0; i < x.length; i++) {
-    sum += x[i].timeIdx * x[i].timeIdx;
-  }
-  return sum;
-}
 
 function cost_2(x) {
   let sum = 0;
@@ -247,37 +145,6 @@ function cost_2(x) {
   sum += checkForSameClassDifferentSubject(x);
   return sum;
 }
-
-const cell1Test = {
-  professorIdx: 0,
-  timeIdx: 0,
-  subjectIdx: 0,
-  classroomIdx: 15,
-  classIdx: 0,
-};
-const cell2Test = {
-  professorIdx: 0,
-  timeIdx: 1,
-  subjectIdx: 0,
-  classroomIdx: 15,
-  classIdx: 1,
-};
-const cell3Test = {
-  professorIdx: 0,
-  timeIdx: 2,
-  subjectIdx: 0,
-  classroomIdx: 15,
-  classIdx: 2,
-};
-const cell4Test = {
-  professorIdx: 0,
-  timeIdx: 3,
-  subjectIdx: 0,
-  classroomIdx: 15,
-  classIdx: 3,
-};
-
-const tempSolution3 = [cell1Test, cell2Test, cell3Test, cell4Test];
 
 const initialSolutionTest = JSON.parse(
   JSON.stringify([
@@ -387,9 +254,6 @@ const initialSolutionTest = JSON.parse(
     cell104,
   ])
 );
-//console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
-
-console.log(cost_2(initialSolutionTest));
 
 function switchTimes(arrayTimes, arraySolution) {
   let arrayTemp = arraySolution;
@@ -438,8 +302,15 @@ function updateTabuList(tabuList, schedule, maxSize = 100) {
   }
 }
 
-function tabuSearchOptimization(initialSchedule, number_of_iterations) {
+function tabuSearchOptimization(initialSchedule, number_of_iterations, setTempSolution) {
   let currentSchedule = initialSchedule;
+  let position = [];
+  let lowerBound = 0;
+  let upperBound = time.length - 1;
+  for (let i = 0; i < currentSchedule.length; i++) {
+    position[i] = Math.round(getRdn(lowerBound, upperBound));
+  }
+  switchTimes(position, currentSchedule);
   let currentCost = cost_2(currentSchedule);
   let tabuList = [];
   let bestSchedule = currentSchedule;
@@ -453,7 +324,7 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations) {
       neighbors = neighbors.filter(schedule => !isInTabuList(schedule, tabuList));
 
       let bestNeighbor = null;
-      let bestNeighborCost = Infinity;
+      let bestNeighborCost = -Infinity;
 
       // Pronalaženje najboljeg susjeda koji nije na tabu listi
       for (let neighbor of neighbors) {
@@ -471,7 +342,8 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations) {
           updateTabuList(tabuList, bestNeighbor);
           
           // Ažuriranje najboljeg pronađenog rasporeda
-          if (currentCost < bestCost) {
+          if (currentCost > bestCost) {
+              console.log(currentCost);
               bestSchedule = currentSchedule;
               bestCost = currentCost;
           }
@@ -479,9 +351,14 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations) {
   }
 
   // Vraćanje najboljeg rasporeda pronađenog tokom pretrage
+  setTempSolution(bestSchedule);
   return bestSchedule;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    BAT ALGORITHM    /////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 // bat algorithm for finding best timeslots for tempSolution, rewrites the tempSolution with new timeslots
 // bestBat variable includes best timeslots for tempSolution
@@ -490,7 +367,7 @@ function batAlgorithm(
   saveRate = 100,
   maxGen = 1000,
   popSize = 50,
-  solution = tempSolution2,
+  solutionInput = tempSolution2,
   maxLoudness = 2,
   maxPulseRate = 1,
   fMin = 0,
@@ -515,13 +392,19 @@ function batAlgorithm(
   let frequency = [];
   let newPosition = []; // bats local array used to calculate bats new position at each generation, before acceptation
 
+  let random = [];
+  for (let i = 0; i < solutionInput.length; i++) {
+    random[i] = Math.round(getRdn(lowerBound, upperBound));
+  }
+  let solution = switchTimes(random, solutionInput);
+
   for (let i = 0; i < popSize; i++) {
     loudness[i] = getRdn(1, maxLoudness);
     pulseRate[i] = getRdn(0, maxPulseRate);
     frequency[i] = getRdn(fMin, fMax);
     position[i] = [];
     velocity[i] = [];
-    newPosition[i] = [];
+    newPosition[i] = []; 
 
     for (let j = 0; j < solution.length; j++) {
       position[i][j] = Math.round(getRdn(lowerBound, upperBound));
@@ -531,15 +414,18 @@ function batAlgorithm(
 
   // evaluate the bats after initialization
   let cost = [];
-  for (let i = 0; i < popSize; i++) {
+
+  for (let i = 0;  i < popSize; i++) {
     cost[i] = costFunc(switchTimes(position[i], solution));
   }
 
   let bestBat;
-  // cycle through each generation
 
+  // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
+
     let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
+
     bestBat = position[indexMax]; // best bat so far
 
     if (gen % saveRate === 0 || gen === 1) {
@@ -586,7 +472,7 @@ function batAlgorithm(
 
       let newCost = costFunc(switchTimes(newPosition[i], solution)); // bat 'newPosition's cost
 
-      // tr y to accept the new solution
+      // try to accept the new solution
       if (getRdn(0, 1) < loudness[i] || newCost >= cost[i]) {
         // new solution accepted, assigning new position to each bat
         for (let j = 0; j < solution.length; j++) {
@@ -746,10 +632,49 @@ const initialSolution1 = [
   cell103,
   cell104,
 ];
-//console.log(cost_2(initialSolution1)); // hardcoded solution has no gaps and 4 lessons every day but checkIfProfessorDayIsContinousOrWithOneBreak returns -5020
 
-console.log("Ovo je idealno rjesenje:")
-console.log(tabuSearchOptimization(initialSolution1, 15))
+/////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////    2-OPT ALGORITHM    /////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+function generate_new_schedule(schedule, numberOfChanges) {
+  // Kopiramo raspored kako ne bismo mijenjali original
+  let newSchedule = JSON.parse(JSON.stringify(schedule));
+
+  for (let i = 0; i < numberOfChanges; i++) {
+    // Nasumično odabiremo dva indeksa iz rasporeda za zamjenu
+    let idx1 = Math.floor(Math.random() * newSchedule.length);
+    let idx2 = Math.floor(Math.random() * newSchedule.length);
+
+    // Zamjenjujemo samo timeIdx
+    let tempTimeIdx = newSchedule[idx1].timeIdx;
+    newSchedule[idx1].timeIdx = newSchedule[idx2].timeIdx;
+    newSchedule[idx2].timeIdx = tempTimeIdx;
+  }
+
+  return newSchedule;
+}
+
+function update_schedule(schedule, number_of_iterations) {
+  let current_loss = cost_2(schedule);
+
+  for (let i = 0; i < number_of_iterations; i++) {
+    // Generišite novi raspored na osnovu neke strategije
+    // Ovdje pretpostavljamo da generate_new_schedule vraća novi raspored sa određenim brojem promjena
+    let new_schedule = generate_new_schedule(schedule, 5); // Broj izmjena može biti prilagođen
+
+    // Izračunajte loss za novi raspored
+    let new_loss = cost_2(new_schedule);
+
+    // Ako je novi raspored bolji, ažurirajte trenutni raspored
+    if (new_loss > current_loss) {
+      schedule = new_schedule;
+      current_loss = new_loss;
+    }
+  }
+
+  return schedule;
+}
 
 function getAllProfessors(schedule) {
   const professorIndices = new Set();
@@ -833,7 +758,7 @@ function optimizeScheduleByProfessor(initialSolution, setTempSolution) {
 export default function MainView() {
   const { selectedClassIdx, setSelectedClassIdx, schedule, setSchedule } =
     useContext(ScheduleContext);
-  console.log(selectedClassIdx, schedule);
+  //console.log(selectedClassIdx, schedule);
 
   let initialSolution = [
     cell1,
@@ -966,13 +891,14 @@ export default function MainView() {
 
   /* Commented just to show solution made by hand */
   useEffect(() => {
-    optimizeScheduleByProfessor(initialSolution, setTempSolution);
-    /*
+    //optimizeScheduleByProfessor(initialSolution, setTempSolution);
+    //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
+    
     batAlgorithm(
       cost_2,
       150,
-      10000,
-      100,
+      10,
+      10,
       initialSolution,
       2,
       1,
@@ -983,7 +909,7 @@ export default function MainView() {
       tempSolution,
       setTempSolution
     ); 
-    */
+    
   }, []);
 
   return (
@@ -1023,7 +949,7 @@ export default function MainView() {
               <Button
                 id={className}
                 onClick={() => {
-                  console.log("clicked ", index);
+                  //console.log("clicked ", index);
                   setSelectedClassIdx(index);
                   setSchedule(initialSolutionTest);
                 }}
