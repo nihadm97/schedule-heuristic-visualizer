@@ -163,18 +163,14 @@ export const checkIfClassDayIsContinous = (arr) => {
 // return 0 if its different day
 
 export const checkIfProfessorDayIsContinousOrWithOneBreak = (arr) => {
-  let foundOneBreakInOneDay = false;
+  let numOfBreaks = 0;
   for (let i = 0; i < arr.length - 1; i++) {
     let hasBreak = checkForBreakBetweenClasses(arr[i + 1], arr[i]);
-    if (hasBreak == 1) {
-      if (foundOneBreakInOneDay) return false; // we found second break in 1 day
-      foundOneBreakInOneDay = true;
-    } else if (hasBreak == -1) {
-      continue;
-    } else if (hasBreak == 0) {
-      foundOneBreakInOneDay = false;
-    }
+    if (hasBreak == -1) continue;
+    if (hasBreak == 0) continue;
+    numOfBreaks += hasBreak;
   }
+  return numOfBreaks;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -330,18 +326,21 @@ export const checkProfessorBreakAndNumOfLessons = (solution) => {
         continue;
       }
     }
+    // console.log(classesPerDay, "cpd");
     for (let j = 0; j < 5; j++) {
-      if (classesPerDay[j] == 1 || classesPerDay[j] > 7) {
+      if (classesPerDay[j] == 0) continue;
+      if (classesPerDay[j] < 2 || classesPerDay[j] > 7) {
         sum -= 5000;
+        console.log(i);
         break;
       }
     }
     allClassTimesFound.sort();
     // console.log("all class time founds", allClassTimesFound);
-    if (
-      checkIfProfessorDayIsContinousOrWithOneBreak(allClassTimesFound) == false
-    ) {
-      sum -= 50;
+    let numOfBreaks =
+      checkIfProfessorDayIsContinousOrWithOneBreak(allClassTimesFound);
+    if (numOfBreaks > 1) {
+      sum -= 50 * (numOfBreaks - 1);
     }
   }
   return sum; //   We didnt find double times for the same professor
@@ -394,8 +393,9 @@ function checkForBreakBetweenClasses(time1, time2) {
   const timeIndex2 = getTimeIndex(time2);
 
   // Check if there's a break between classes on the same day
-  if (timeIndex2 - timeIndex1 > 1) {
-    return 1; // There's a break between classes
+
+  if (Math.abs(timeIndex2 - timeIndex1) >= 2) {
+    return Math.abs(timeIndex2 - timeIndex1) - 1;
   }
 
   return -1; // No break between classes
