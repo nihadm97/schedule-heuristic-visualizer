@@ -140,9 +140,9 @@ import Link from "next/link";
 function cost_2(x) {
   let sum = 0;
   sum += checkProfessorBreakAndNumOfLessons(x);
-  sum += checkForSameProfessorDifferentClass(x);
-  sum += checkClassGapsAndNumOfLessons(x); // commented to make professor conditions work first
-  sum += checkForSameClassDifferentSubject(x);
+  // sum += checkForSameProfessorDifferentClass(x);
+  // sum += checkClassGapsAndNumOfLessons(x); // commented to make professor conditions work first
+  // sum += checkForSameClassDifferentSubject(x);
   return sum;
 }
 
@@ -267,20 +267,24 @@ function switchTimes(arrayTimes, arraySolution) {
 // tabu search
 function generateNeighbors(schedule) {
   let neighbors = [];
-  const numberOfChanges = Math.floor(schedule.length/2);
+  const numberOfChanges = Math.floor(schedule.length / 2);
 
   for (let i = 0; i < numberOfChanges; i++) {
-      let newSchedule = JSON.parse(JSON.stringify(schedule));
-      let randomIndex = Math.floor(Math.random() * newSchedule.length);
-      let randomChange = Math.random() > 0.5 ? 'timeIdx' : 'classroomIdx';
+    let newSchedule = JSON.parse(JSON.stringify(schedule));
+    let randomIndex = Math.floor(Math.random() * newSchedule.length);
+    let randomChange = Math.random() > 0.5 ? "timeIdx" : "classroomIdx";
 
-      if (randomChange === 'timeIdx') {
-          newSchedule[randomIndex].timeIdx = Math.floor(Math.random() * time.length);
-      } else { 
-          newSchedule[randomIndex].classroomIdx = Math.floor(Math.random() * classrooms.length);
-      }
+    if (randomChange === "timeIdx") {
+      newSchedule[randomIndex].timeIdx = Math.floor(
+        Math.random() * time.length
+      );
+    } else {
+      newSchedule[randomIndex].classroomIdx = Math.floor(
+        Math.random() * classrooms.length
+      );
+    }
 
-      neighbors.push(newSchedule);
+    neighbors.push(newSchedule);
   }
 
   return neighbors;
@@ -293,16 +297,20 @@ function isInTabuList(schedule, tabuList) {
 
 function updateTabuList(tabuList, schedule, maxSize = 100) {
   let scheduleString = JSON.stringify(schedule);
-  if (!tabuList.includes(scheduleString)){
+  if (!tabuList.includes(scheduleString)) {
     tabuList.push(scheduleString);
   }
 
   if (tabuList.length > maxSize) {
-      tabuList.shift();
+    tabuList.shift();
   }
 }
 
-function tabuSearchOptimization(initialSchedule, number_of_iterations, setTempSolution) {
+function tabuSearchOptimization(
+  initialSchedule,
+  number_of_iterations,
+  setTempSolution
+) {
   let currentSchedule = initialSchedule;
   let position = [];
   let lowerBound = 0;
@@ -317,44 +325,45 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations, setTempSo
   let bestCost = currentCost;
 
   for (let i = 0; i < number_of_iterations; i++) {
-      // Generisanje susjednih rasporeda
-      let neighbors = generateNeighbors(currentSchedule);
+    // Generisanje susjednih rasporeda
+    let neighbors = generateNeighbors(currentSchedule);
 
-      // Filtriranje onih koji su već na tabu listi
-      neighbors = neighbors.filter(schedule => !isInTabuList(schedule, tabuList));
+    // Filtriranje onih koji su već na tabu listi
+    neighbors = neighbors.filter(
+      (schedule) => !isInTabuList(schedule, tabuList)
+    );
 
-      let bestNeighbor = null;
-      let bestNeighborCost = -Infinity;
+    let bestNeighbor = null;
+    let bestNeighborCost = -Infinity;
 
-      // Pronalaženje najboljeg susjeda koji nije na tabu listi
-      for (let neighbor of neighbors) {
-          let cost = cost_2(neighbor);
-          if (cost > bestNeighborCost && !isInTabuList(neighbor, tabuList)) {
-              bestNeighbor = neighbor;
-              bestNeighborCost = cost;
-          }
+    // Pronalaženje najboljeg susjeda koji nije na tabu listi
+    for (let neighbor of neighbors) {
+      let cost = cost_2(neighbor);
+      if (cost > bestNeighborCost && !isInTabuList(neighbor, tabuList)) {
+        bestNeighbor = neighbor;
+        bestNeighborCost = cost;
       }
+    }
 
-      // Ažuriranje trenutnog rasporeda i tabu liste
-      if (bestNeighbor) {
-          currentSchedule = bestNeighbor;
-          currentCost = bestNeighborCost;
-          updateTabuList(tabuList, bestNeighbor);
-          
-          // Ažuriranje najboljeg pronađenog rasporeda
-          if (currentCost > bestCost) {
-              console.log(currentCost);
-              bestSchedule = currentSchedule;
-              bestCost = currentCost;
-          }
+    // Ažuriranje trenutnog rasporeda i tabu liste
+    if (bestNeighbor) {
+      currentSchedule = bestNeighbor;
+      currentCost = bestNeighborCost;
+      updateTabuList(tabuList, bestNeighbor);
+
+      // Ažuriranje najboljeg pronađenog rasporeda
+      if (currentCost > bestCost) {
+        console.log(currentCost);
+        bestSchedule = currentSchedule;
+        bestCost = currentCost;
       }
+    }
   }
 
   // Vraćanje najboljeg rasporeda pronađenog tokom pretrage
   setTempSolution(bestSchedule);
   return bestSchedule;
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    BAT ALGORITHM    /////////////////////////////////////
@@ -404,7 +413,7 @@ function batAlgorithm(
     frequency[i] = getRdn(fMin, fMax);
     position[i] = [];
     velocity[i] = [];
-    newPosition[i] = []; 
+    newPosition[i] = [];
 
     for (let j = 0; j < solution.length; j++) {
       position[i][j] = Math.round(getRdn(lowerBound, upperBound));
@@ -415,7 +424,7 @@ function batAlgorithm(
   // evaluate the bats after initialization
   let cost = [];
 
-  for (let i = 0;  i < popSize; i++) {
+  for (let i = 0; i < popSize; i++) {
     cost[i] = costFunc(switchTimes(position[i], solution));
   }
 
@@ -423,7 +432,6 @@ function batAlgorithm(
 
   // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
-
     let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
 
     bestBat = position[indexMax]; // best bat so far
@@ -642,15 +650,15 @@ function generateImprovedSchedule(currentSchedule) {
   let bestCost = cost_2(currentSchedule);
 
   for (let i = 0; i < currentSchedule.length; i++) {
-      for (let j = i+1; j < currentSchedule.length; j++) {
-          let modifiedSchedule = modifyScheduleTime(bestSchedule, i, j);
-          let modifiedCost = cost_2(modifiedSchedule);
+    for (let j = i + 1; j < currentSchedule.length; j++) {
+      let modifiedSchedule = modifyScheduleTime(bestSchedule, i, j);
+      let modifiedCost = cost_2(modifiedSchedule);
 
-          if (modifiedCost < bestCost) {
-              bestSchedule = modifiedSchedule;
-              bestCost = modifiedCost;
-          }
+      if (modifiedCost < bestCost) {
+        bestSchedule = modifiedSchedule;
+        bestCost = modifiedCost;
       }
+    }
   }
 
   return bestSchedule;
@@ -671,15 +679,14 @@ function modifyScheduleTime(schedule, index1, index2) {
 function modifyScheduleClass(schedule, index1, index2) {
   let newSchedule = JSON.parse(JSON.stringify(schedule));
   // Vršenje zamjene ucionica između i-tog i j-tog časa
-  let tempClassroomIdx = newSchedule[index1].classroomIdx ;
-  newSchedule[index1].classroomIdx  = newSchedule[index2].classroomIdx ;
-  newSchedule[index2].classroomIdx  = tempClassroomIdx ;
+  let tempClassroomIdx = newSchedule[index1].classroomIdx;
+  newSchedule[index1].classroomIdx = newSchedule[index2].classroomIdx;
+  newSchedule[index2].classroomIdx = tempClassroomIdx;
 
   return newSchedule;
 }
 
 function optimizeScheduleWith2Opt(initialSchedule, setTempSolution) {
-
   let bestSchedule = initialSchedule;
   let position = [];
   let lowerBound = 0;
@@ -691,23 +698,20 @@ function optimizeScheduleWith2Opt(initialSchedule, setTempSolution) {
 
   let bestCost = cost_2(bestSchedule);
   console.log(bestCost);
-  
+
   while (true) {
-      let two_opt_solution = generateImprovedSchedule(bestSchedule);
-      if (cost_2(two_opt_solution) >= bestCost){
-        bestCost = cost_2(two_opt_solution);
-        bestSchedule = two_opt_solution;
-      }
-      else{
-        break
-      }
+    let two_opt_solution = generateImprovedSchedule(bestSchedule);
+    if (cost_2(two_opt_solution) >= bestCost) {
+      bestCost = cost_2(two_opt_solution);
+      bestSchedule = two_opt_solution;
+    } else {
+      break;
+    }
   }
 
   setTempSolution(bestSchedule);
   return bestSchedule;
 }
-
-
 
 export default function MainView() {
   const { selectedClassIdx, setSelectedClassIdx, schedule, setSchedule } =
@@ -846,7 +850,8 @@ export default function MainView() {
   /* Commented just to show solution made by hand */
   useEffect(() => {
     //optimizeScheduleByProfessor(initialSolution, setTempSolution);
-    //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
+    // tabuSearchOptimization(initialSolution1, 3000, setTempSolution);
+    console.log(cost_2(initialSolutionTest));
     /*
     batAlgorithm(
       cost_2,
@@ -864,7 +869,7 @@ export default function MainView() {
       setTempSolution
     ); 
     */
-    optimizeScheduleWith2Opt(initialSolution, setTempSolution);
+    // optimizeScheduleWith2Opt(initialSolution, setTempSolution);
   }, []);
 
   return (
