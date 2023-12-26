@@ -642,11 +642,11 @@ function generateImprovedSchedule(currentSchedule) {
   let bestCost = cost_2(currentSchedule);
 
   for (let i = 0; i < currentSchedule.length; i++) {
-      for (let j = i+1; j < currentSchedule.length; j++) {
+      for (let j = 0; j < currentSchedule.length; j++) {
           let modifiedSchedule = modifyScheduleTime(bestSchedule, i, j);
           let modifiedCost = cost_2(modifiedSchedule);
 
-          if (modifiedCost < bestCost) {
+          if (modifiedCost > bestCost) {
               bestSchedule = modifiedSchedule;
               bestCost = modifiedCost;
           }
@@ -690,11 +690,11 @@ function optimizeScheduleWith2Opt(initialSchedule, setTempSolution) {
   switchTimes(position, bestSchedule);
 
   let bestCost = cost_2(bestSchedule);
-  console.log(bestCost);
   
   while (true) {
       let two_opt_solution = generateImprovedSchedule(bestSchedule);
-      if (cost_2(two_opt_solution) >= bestCost){
+      console.log(bestCost);
+      if (cost_2(two_opt_solution) > bestCost){
         bestCost = cost_2(two_opt_solution);
         bestSchedule = two_opt_solution;
       }
