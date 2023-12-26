@@ -140,9 +140,9 @@ import Link from "next/link";
 function cost_2(x) {
   let sum = 0;
   sum += checkProfessorBreakAndNumOfLessons(x);
-  // sum += checkForSameProfessorDifferentClass(x);
-  // sum += checkClassGapsAndNumOfLessons(x); // commented to make professor conditions work first
-  // sum += checkForSameClassDifferentSubject(x);
+  sum += checkForSameProfessorDifferentClass(x);
+  sum += checkClassGapsAndNumOfLessons(x); // commented to make professor conditions work first
+  sum += checkForSameClassDifferentSubject(x);
   return sum;
 }
 
@@ -849,15 +849,13 @@ export default function MainView() {
 
   /* Commented just to show solution made by hand */
   useEffect(() => {
-    //optimizeScheduleByProfessor(initialSolution, setTempSolution);
-    // tabuSearchOptimization(initialSolution1, 3000, setTempSolution);
-    console.log(cost_2(initialSolutionTest));
+    //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
     /*
     batAlgorithm(
       cost_2,
       150,
-      10,
-      10,
+      100,
+      1000,
       initialSolution,
       2,
       1,
@@ -869,7 +867,7 @@ export default function MainView() {
       setTempSolution
     ); 
     */
-    // optimizeScheduleWith2Opt(initialSolution, setTempSolution);
+    //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
   }, []);
 
   return (

@@ -211,7 +211,7 @@ export const cell13 = {
 };
 export const cell14 = {
   professorIdx: 2,
-  timeIdx: 2,
+  timeIdx: 5,
   subjectIdx: 1,
   classroomIdx: 17,
   classIdx: 1,
@@ -414,7 +414,7 @@ export const cell42 = {
 };
 export const cell43 = {
   professorIdx: 8,
-  timeIdx: 5,
+  timeIdx: 2,
   subjectIdx: 4,
   classroomIdx: 0,
   classIdx: 1,
