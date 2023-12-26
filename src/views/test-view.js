@@ -265,6 +265,8 @@ const initialSolutionTest = JSON.parse(
   ])
 );
 
+// console.log(randomizeTime(initialSolutionTest, time))
+
 function switchTimes(arrayTimes, arraySolution) {
   let arrayTemp = arraySolution;
   // switch old timeslots with new timeslots
