@@ -141,6 +141,11 @@ function randomizeTime(cells, time) {
   let randomizedSchedule = []; 
   for (let i = 0; i < cells.length; i++) {
       const newCell = JSON.parse(JSON.stringify(cells[i])); // Duboka kopija
+      // ovo mozemo jos dodati ako hocemo TOTALNO random raspored
+      // newCell.professorIdx = Math.floor(Math.random() * professors.length); 
+      // newCell.subjectIdxIdx = Math.floor(Math.random() * subjects.length); 
+      // newCell.classroomIdx = Math.floor(Math.random() * classrooms.length); 
+      // newCell.classIdx = Math.floor(Math.random() * classes.length);
       newCell.timeIdx = Math.floor(Math.random() * time.length); 
       randomizedSchedule.push(newCell); 
   }
