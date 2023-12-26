@@ -137,6 +137,16 @@ import Link from "next/link";
 ////////////////////////////////////    TABU SEACH    ///////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+function randomizeTime(cells, time) {
+  let randomizedSchedule = []; 
+  for (let i = 0; i < cells.length; i++) {
+      const newCell = JSON.parse(JSON.stringify(cells[i])); // Duboka kopija
+      newCell.timeIdx = Math.floor(Math.random() * time.length); 
+      randomizedSchedule.push(newCell); 
+  }
+  return randomizedSchedule;
+}
+
 function cost_2(x) {
   let sum = 0;
   sum += checkProfessorBreakAndNumOfLessons(x);
