@@ -312,6 +312,13 @@ function tabuSearchOptimization(
   setTempSolution
 ) {
   let currentSchedule = initialSchedule;
+  let position = [];
+  let lowerBound = 0;
+  let upperBound = time.length - 1;
+  for (let i = 0; i < currentSchedule.length; i++) {
+    position[i] = Math.round(getRdn(lowerBound, upperBound));
+  }
+  switchTimes(position, currentSchedule);
   let currentCost = cost_2(currentSchedule);
   let tabuList = [];
   let bestSchedule = currentSchedule;
@@ -681,6 +688,12 @@ function modifyScheduleClass(schedule, index1, index2) {
 
 function optimizeScheduleWith2Opt(initialSchedule, setTempSolution) {
   let bestSchedule = initialSchedule;
+  let position = [];
+  let lowerBound = 0;
+  let upperBound = time.length - 1;
+  for (let i = 0; i < bestSchedule.length; i++) {
+    position[i] = Math.round(getRdn(lowerBound, upperBound));
+  }
   switchTimes(position, bestSchedule);
 
   let bestCost = cost_2(bestSchedule);
