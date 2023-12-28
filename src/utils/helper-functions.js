@@ -331,7 +331,6 @@ export const checkProfessorBreakAndNumOfLessons = (solution) => {
       if (classesPerDay[j] == 0) continue;
       if (classesPerDay[j] < 2 || classesPerDay[j] > 7) {
         sum -= 5000;
-        console.log(i);
         break;
       }
     }
