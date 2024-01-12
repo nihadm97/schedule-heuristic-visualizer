@@ -132,10 +132,24 @@ import {
 import React, { useState, useEffect, useContext } from "react";
 import ScheduleContext from "@/context/scheduleContext";
 import Link from "next/link";
+import jstat from 'jstat';
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    TABU SEACH    ///////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
+const generateRandomGammaInteger = (shape, scale, minValue, maxValue) => {
+  // Generate a random number from the gamma distribution
+  const randomNumber = jstat.gamma.sample(shape, scale);
+
+  // Round to the nearest integer
+  const roundedNumber = Math.round(randomNumber);
+
+  // Ensure the value is within the specified range
+  const finalNumber = Math.min(Math.max(roundedNumber, minValue), maxValue);
+
+  return finalNumber;
+};
 
 function cost_2(x) {
   let sum = 0;
@@ -316,7 +330,8 @@ function tabuSearchOptimization(
   let lowerBound = 0;
   let upperBound = time.length - 1;
   for (let i = 0; i < currentSchedule.length; i++) {
-    position[i] = Math.round(getRdn(lowerBound, upperBound));
+    position[i] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+    //position[i] = Math.round(getRdn(lowerBound, upperBound));
   }
   switchTimes(position, currentSchedule);
   let currentCost = cost_2(currentSchedule);
@@ -377,7 +392,7 @@ function batAlgorithm(
   maxGen = 1000,
   popSize = 50,
   solutionInput = tempSolution2,
-  maxLoudness = 2,
+  maxLoudness = 0.5,
   maxPulseRate = 1,
   fMin = 0,
   fMax = 10,
@@ -403,23 +418,27 @@ function batAlgorithm(
 
   let random = [];
   for (let i = 0; i < solutionInput.length; i++) {
-    random[i] = Math.round(getRdn(lowerBound, upperBound));
+    random[i] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+    //random[i] = Math.round(getRdn(lowerBound, upperBound));
   }
-  let solution = switchTimes(random, solutionInput);
+
 
   for (let i = 0; i < popSize; i++) {
-    loudness[i] = getRdn(1, maxLoudness);
+    loudness[i] = getRdn(0, maxLoudness);
     pulseRate[i] = getRdn(0, maxPulseRate);
     frequency[i] = getRdn(fMin, fMax);
     position[i] = [];
     velocity[i] = [];
     newPosition[i] = [];
 
-    for (let j = 0; j < solution.length; j++) {
-      position[i][j] = Math.round(getRdn(lowerBound, upperBound));
-      velocity[i][j] = getRdn(-3, 3);
+    for (let j = 0; j < solutionInput.length; j++) {
+      position[i][j] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+      //position[i] = Math.round(getRdn(lowerBound, upperBound));
+      velocity[i][j] = getRdn(-1, 1);
     }
   }
+
+  let solution = switchTimes(random, solutionInput);
 
   // evaluate the bats after initialization
   let cost = [];
@@ -429,12 +448,24 @@ function batAlgorithm(
   }
 
   let bestBat;
+  let lastBat = position[0];
+  let counter = 0;
 
   // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
     let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
-
+    console.log(cost[indexMax]);
+    
     bestBat = position[indexMax]; // best bat so far
+    solution = switchTimes(bestBat, solution);
+
+    if (costFunc(lastBat) < costFunc(bestBat)) {
+      lastBat = bestBat;
+      counter = 0;
+    }
+    else{
+      counter = counter + 1;
+    }
 
     if (gen % saveRate === 0 || gen === 1) {
       let data = {};
@@ -481,7 +512,7 @@ function batAlgorithm(
       let newCost = costFunc(switchTimes(newPosition[i], solution)); // bat 'newPosition's cost
 
       // try to accept the new solution
-      if (getRdn(0, 1) < loudness[i] || newCost >= cost[i]) {
+      if ((getRdn(0, 1) < loudness[i] || newCost >= cost[i]) && cost[i] != newCost) {
         // new solution accepted, assigning new position to each bat
         for (let j = 0; j < solution.length; j++) {
           position[i][j] = newPosition[i][j];
@@ -490,12 +521,28 @@ function batAlgorithm(
         loudness[i] = loudness[i] * ALPHA; // loudness update (6)
         pulseRate[i] = pulseRate[i] * (1 - Math.exp(-GAMMA * gen)); // pulse rate update (6)
       }
+
+    }
+
+    if(counter >= 50){
+      let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
+      for (let i = 0; i < popSize; i++) {
+        if(costFunc(position[indexMax]) != costFunc(position[i])){
+          position[i] = [];
+    
+          for (let j = 0; j < solutionInput.length; j++) {
+            position[i][j] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+          }
+        }
+      }
+      counter = 0;
     }
   }
 
+  solution = switchTimes(bestBat, solution);
+  console.log(costFunc(solution));
   let newSolution = solution;
   setTempSolution(newSolution);
-  solution = switchTimes(bestBat, solution);
   return solution;
 }
 
@@ -849,24 +896,34 @@ export default function MainView() {
 
   /* Commented just to show solution made by hand */
   useEffect(() => {
-    //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
+
     /*
+    for (let index = 0; index < 100; index++) {
+
+      const randomInteger = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+      console.log('Random integer from gamma distribution within the range:', randomInteger);
+      
+    }
+    */
+
+    //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
+  
     batAlgorithm(
       cost_2,
-      150,
       100,
-      1000,
+      10000,
+      50,
       initialSolution,
       2,
       1,
-      -10,
+      0,
       10,
       0,
       time.length - 1,
       tempSolution,
       setTempSolution
     ); 
-    */
+    
     //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
   }, []);
 
