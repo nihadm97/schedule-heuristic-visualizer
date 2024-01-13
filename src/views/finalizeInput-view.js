@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 
-export default function FinalizeInputView({ professors, subjects, classes, classrooms }) {
+export default function FinalizeInputView({ professors, subjects, classes, classrooms, times }) {
 
   const [selectedProfessor, setSelectedProfessor] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
@@ -13,7 +13,11 @@ export default function FinalizeInputView({ professors, subjects, classes, class
   const handleDropdownChange = (event, setState) => {
     setState(event.target.value);
   };
-
+  professors = [1,2,3,4]
+  subjects = [1,2,3,4]
+  classes = [1,2,3,4]
+  classrooms = [1,2,3,4]
+  times  = [1,2,3,4]
   const handleRepeatCountChange = (event) => {
     setRepeatCount(parseInt(event.target.value) || 0);
   };
@@ -22,7 +26,7 @@ export default function FinalizeInputView({ professors, subjects, classes, class
     event.preventDefault();
     const newEntries = Array.from({ length: repeatCount }, () => ({
       professorIdx: selectedProfessor,
-      timeIdx: Math.floor(Math.random() * 100), // Primer random broja
+      timeIdx: Math.floor(Math.random() * times.length),
       subjectIdx: selectedSubject,
       classroomIdx: selectedClassroom,
       classIdx: selectedClass,

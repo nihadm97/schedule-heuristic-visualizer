@@ -66,7 +66,7 @@ export default function InputView() {
           setTimes(addValue);
           break;
         default:
-          // No default action
+          
       }
     }
     setInput({ ...input, [name]: '' });
@@ -84,21 +84,9 @@ export default function InputView() {
     maxHeight: '400px', 
     overflowY: 'auto'
   }
+  
   const generisiRaspored = () => {
-    const raspored = []; 
-  
-    for (let i = 0; i < 100; i++) {
-        raspored.push({
-        professorIdx: Math.floor(Math.random() * professors.length),
-        timeIdx: Math.floor(Math.random() * times.length),
-        subjectIdx: Math.floor(Math.random() * subjects.length),
-        classroomIdx: Math.floor(Math.random() * classrooms.length),
-        classIdx: Math.floor(Math.random() * classes.length),
-      });
-    }
-  
-    console.log(raspored);
-    return raspored
+    history.push('/finalizeInput',  { professors, subjects, classes, classrooms, times});
   };
 
   return (
