@@ -18,27 +18,27 @@ export default function InputView() {
     time: ''
   });
 
-  // Log when professors change
+  
   useEffect(() => {
     console.log('Updated professors:', professors);
   }, [professors]);
 
-  // Log when subjects change
+  
   useEffect(() => {
     console.log('Updated subjects:', subjects);
   }, [subjects]);
 
-  // Log when classes change
+  
   useEffect(() => {
     console.log('Updated classes:', classes);
   }, [classes]);
 
-  // Log when classrooms change
+
   useEffect(() => {
     console.log('Updated classrooms:', classrooms);
   }, [classrooms]);
 
-  // Log when times change
+
   useEffect(() => {
     console.log('Updated times:', times);
   }, [times]);
@@ -89,7 +89,7 @@ export default function InputView() {
   
   
   const generisiRaspored = () => {
-    // Logic to prepare props you want to send
+
     const propsToSend = {
       professors,
       subjects,
