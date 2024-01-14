@@ -132,7 +132,7 @@ import {
 import React, { useState, useEffect, useContext } from "react";
 import ScheduleContext from "@/context/scheduleContext";
 import Link from "next/link";
-import jstat from 'jstat';
+import jstat from "jstat";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    TABU SEACH    ///////////////////////////////////////////
@@ -140,7 +140,8 @@ import jstat from 'jstat';
 
 const generateRandomGammaInteger = (shape, scale, minValue, maxValue) => {
   // Generate a random number from the gamma distribution
-  const randomNumber = jstat.gamma.sample(shape, scale);
+  let randomNumber = jstat.gamma.sample(shape, scale);
+  randomNumber = randomNumber * (Math.floor(Math.random() * 5) + 1);
 
   // Round to the nearest integer
   const roundedNumber = Math.round(randomNumber);
@@ -270,7 +271,7 @@ const initialSolutionTest = JSON.parse(
 );
 
 function switchTimes(arrayTimes, arraySolution) {
-  let arrayTemp = arraySolution;
+  let arrayTemp = JSON.parse(JSON.stringify(arraySolution));
   // switch old timeslots with new timeslots
   for (let i = 0; i < arrayTimes.length; i++) {
     arrayTemp[i].timeIdx = arrayTimes[i];
@@ -397,16 +398,16 @@ function batAlgorithm(
   fMin = 0,
   fMax = 10,
   lowerBound = 0,
-  upperBound = time.length - 1,
-  tempSolution,
-  setTempSolution
+  upperBound = time.length - 1
+  // tempSolution,
+  // setTempSolution
 ) {
   if (!costFunc)
     throw new Error(
       "Please pass a valid cost function for your optimization problems"
     );
-  const ALPHA = 0.9;
-  const GAMMA = 0.9;
+  const ALPHA = 1;
+  const GAMMA = 1;
 
   // parameters initialization using uniform distribution
   let position = [];
@@ -418,10 +419,10 @@ function batAlgorithm(
 
   let random = [];
   for (let i = 0; i < solutionInput.length; i++) {
-    random[i] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
-    //random[i] = Math.round(getRdn(lowerBound, upperBound));
+    // random[i] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+    // random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+    random[i] = Math.round(getRdn(lowerBound, upperBound));
   }
-
 
   for (let i = 0; i < popSize; i++) {
     loudness[i] = getRdn(0, maxLoudness);
@@ -432,13 +433,15 @@ function batAlgorithm(
     newPosition[i] = [];
 
     for (let j = 0; j < solutionInput.length; j++) {
-      position[i][j] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
-      //position[i] = Math.round(getRdn(lowerBound, upperBound));
+      // position[i][j] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+      position[i][j] = Math.round(getRdn(lowerBound, upperBound));
+      // position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
       velocity[i][j] = getRdn(-1, 1);
     }
   }
 
-  let solution = switchTimes(random, solutionInput);
+  console.log("radnom", random);
+  let solution = JSON.parse(JSON.stringify(switchTimes(random, solutionInput)));
 
   // evaluate the bats after initialization
   let cost = [];
@@ -453,17 +456,17 @@ function batAlgorithm(
 
   // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
+    // console.log("gen: ", gen);
     let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
     console.log(cost[indexMax]);
-    
+
     bestBat = position[indexMax]; // best bat so far
-    solution = switchTimes(bestBat, solution);
+    solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
 
     if (costFunc(lastBat) < costFunc(bestBat)) {
       lastBat = bestBat;
       counter = 0;
-    }
-    else{
+    } else {
       counter = counter + 1;
     }
 
@@ -512,7 +515,10 @@ function batAlgorithm(
       let newCost = costFunc(switchTimes(newPosition[i], solution)); // bat 'newPosition's cost
 
       // try to accept the new solution
-      if ((getRdn(0, 1) < loudness[i] || newCost >= cost[i]) && cost[i] != newCost) {
+      if (
+        (getRdn(0, 1) < loudness[i] || newCost >= cost[i]) &&
+        cost[i] != newCost
+      ) {
         // new solution accepted, assigning new position to each bat
         for (let j = 0; j < solution.length; j++) {
           position[i][j] = newPosition[i][j];
@@ -521,17 +527,28 @@ function batAlgorithm(
         loudness[i] = loudness[i] * ALPHA; // loudness update (6)
         pulseRate[i] = pulseRate[i] * (1 - Math.exp(-GAMMA * gen)); // pulse rate update (6)
       }
-
     }
 
-    if(counter >= 50){
+    if (counter >= 50) {
       let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
       for (let i = 0; i < popSize; i++) {
-        if(costFunc(position[indexMax]) != costFunc(position[i])){
+        if (costFunc(position[indexMax]) != costFunc(position[i])) {
           position[i] = [];
-    
+
           for (let j = 0; j < solutionInput.length; j++) {
-            position[i][j] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+            // position[i][j] = generateRandomGammaInteger(
+            //   10,
+            //   2,
+            //   0,
+            //   time.length - 1
+            // );
+            // position[i][j] = generateRandomGammaInteger(
+            //   5,
+            //   0.45,
+            //   0,
+            //   time.length - 1
+            // );
+            position[i][j] = Math.round(getRdn(lowerBound, upperBound));
           }
         }
       }
@@ -539,10 +556,12 @@ function batAlgorithm(
     }
   }
 
-  solution = switchTimes(bestBat, solution);
+  solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
+  let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
+  console.log(cost[indexMax]);
   console.log(costFunc(solution));
-  let newSolution = solution;
-  setTempSolution(newSolution);
+  let newSolution = JSON.parse(JSON.stringify(solution));
+  // setTempSolution(newSolution);
   return solution;
 }
 
@@ -760,126 +779,128 @@ function optimizeScheduleWith2Opt(initialSchedule, setTempSolution) {
   return bestSchedule;
 }
 
+let initialSolution = [
+  cell1,
+  cell2,
+  cell3,
+  cell4,
+  cell5,
+  cell6,
+  cell7,
+  cell8,
+  cell9,
+  cell10,
+  cell11,
+  cell12,
+  cell13,
+  cell14,
+  cell15,
+  cell16,
+  cell17,
+  cell18,
+  cell19,
+  cell20,
+  cell21,
+  cell22,
+  cell23,
+  cell24,
+  cell25,
+  cell26,
+  cell27,
+  cell28,
+  cell29,
+  cell30,
+  cell31,
+  cell32,
+  cell33,
+  cell34,
+  cell35,
+  cell36,
+  cell37,
+  cell38,
+  cell39,
+  cell40,
+  cell41,
+  cell42,
+  cell43,
+  cell44,
+  cell45,
+  cell46,
+  cell47,
+  cell48,
+  cell49,
+  cell50,
+  cell51,
+  cell52,
+  cell53,
+  cell54,
+  cell55,
+  cell56,
+  cell57,
+  cell58,
+  cell59,
+  cell60,
+  cell61,
+  cell62,
+  cell63,
+  cell64,
+  cell65,
+  cell66,
+  cell67,
+  cell68,
+  cell69,
+  cell70,
+  cell71,
+  cell72,
+  cell73,
+  cell74,
+  cell75,
+  cell76,
+  cell77,
+  cell78,
+  cell79,
+  cell80,
+  cell81,
+  cell82,
+  cell83,
+  cell84,
+  cell85,
+  cell86,
+  cell87,
+  cell88,
+  cell89,
+  cell90,
+  cell91,
+  cell92,
+  cell93,
+  cell94,
+  cell95,
+  cell96,
+  cell97,
+  cell98,
+  cell99,
+  cell100,
+  cell101,
+  cell102,
+  cell103,
+  cell104,
+];
+
 export default function MainView() {
   const { selectedClassIdx, setSelectedClassIdx, schedule, setSchedule } =
     useContext(ScheduleContext);
   //console.log(selectedClassIdx, schedule);
 
-  let initialSolution = [
-    cell1,
-    cell2,
-    cell3,
-    cell4,
-    cell5,
-    cell6,
-    cell7,
-    cell8,
-    cell9,
-    cell10,
-    cell11,
-    cell12,
-    cell13,
-    cell14,
-    cell15,
-    cell16,
-    cell17,
-    cell18,
-    cell19,
-    cell20,
-    cell21,
-    cell22,
-    cell23,
-    cell24,
-    cell25,
-    cell26,
-    cell27,
-    cell28,
-    cell29,
-    cell30,
-    cell31,
-    cell32,
-    cell33,
-    cell34,
-    cell35,
-    cell36,
-    cell37,
-    cell38,
-    cell39,
-    cell40,
-    cell41,
-    cell42,
-    cell43,
-    cell44,
-    cell45,
-    cell46,
-    cell47,
-    cell48,
-    cell49,
-    cell50,
-    cell51,
-    cell52,
-    cell53,
-    cell54,
-    cell55,
-    cell56,
-    cell57,
-    cell58,
-    cell59,
-    cell60,
-    cell61,
-    cell62,
-    cell63,
-    cell64,
-    cell65,
-    cell66,
-    cell67,
-    cell68,
-    cell69,
-    cell70,
-    cell71,
-    cell72,
-    cell73,
-    cell74,
-    cell75,
-    cell76,
-    cell77,
-    cell78,
-    cell79,
-    cell80,
-    cell81,
-    cell82,
-    cell83,
-    cell84,
-    cell85,
-    cell86,
-    cell87,
-    cell88,
-    cell89,
-    cell90,
-    cell91,
-    cell92,
-    cell93,
-    cell94,
-    cell95,
-    cell96,
-    cell97,
-    cell98,
-    cell99,
-    cell100,
-    cell101,
-    cell102,
-    cell103,
-    cell104,
-  ];
   const [tempSolution, setTempSolution] = useState(initialSolution);
-  const groupedLessons = {};
-  tempSolution.forEach((lesson) => {
-    const professorName = professors[lesson.professorIdx];
-    if (!groupedLessons[professorName]) {
-      groupedLessons[professorName] = [];
-    }
-    groupedLessons[professorName].push(lesson);
-  });
+  const [groupedLessons, setGroupedLessons] = useState({});
+  // const groupedLessons = {};
+  // tempSolution.forEach((lesson) => {
+  //   const professorName = professors[lesson.professorIdx];
+  //   if (!groupedLessons[professorName]) {
+  //     groupedLessons[professorName] = [];
+  //   }
+  //   groupedLessons[professorName].push(lesson);
+  // });
 
   const tableCellStyle = {
     fontWeight: "bold",
@@ -893,10 +914,42 @@ export default function MainView() {
     color: "common.white",
     textAlign: "center",
   };
-
+  const handleBatClicked = () => {
+    const batSolution = batAlgorithm(
+      cost_2,
+      100,
+      300,
+      300,
+      initialSolution,
+      1.0,
+      0.4,
+      0,
+      29,
+      0,
+      time.length - 1
+    );
+    const groupedLessons = {};
+    batSolution.forEach((lesson) => {
+      const professorName = professors[lesson.professorIdx];
+      if (!groupedLessons[professorName]) {
+        groupedLessons[professorName] = [];
+      }
+      groupedLessons[professorName].push(lesson);
+    });
+    setTempSolution(batSolution);
+    setGroupedLessons(groupedLessons);
+  };
   /* Commented just to show solution made by hand */
   useEffect(() => {
-
+    const groupedLessons = {};
+    initialSolution.forEach((lesson) => {
+      const professorName = professors[lesson.professorIdx];
+      if (!groupedLessons[professorName]) {
+        groupedLessons[professorName] = [];
+      }
+      groupedLessons[professorName].push(lesson);
+    });
+    setGroupedLessons(groupedLessons);
     /*
     for (let index = 0; index < 100; index++) {
 
@@ -907,29 +960,16 @@ export default function MainView() {
     */
 
     //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
-  
-    batAlgorithm(
-      cost_2,
-      100,
-      10000,
-      50,
-      initialSolution,
-      2,
-      1,
-      0,
-      10,
-      0,
-      time.length - 1,
-      tempSolution,
-      setTempSolution
-    ); 
-    
+
     //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
   }, []);
 
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
+        <Box>
+          <Button onClick={() => handleBatClicked()}>Run Bat algorithm</Button>
+        </Box>
         <Box display="flex" justifyContent="center">
           <TableContainer component={Paper} elevation={3}>
             <Table sx={{ minWidth: 650 }} aria-label="schedule table">
