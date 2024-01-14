@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import FinalizeInputView from './finalizeInput-view';
 
 export default function InputView() {
   const [professors, setProfessors] = useState([]);
@@ -7,6 +8,7 @@ export default function InputView() {
   const [classes, setClasses] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
   const [times, setTimes] = useState([]);
+  const [currentScreen, setCurrentScreen] = useState('main');
 
   const [input, setInput] = useState({
     professor: '',
@@ -85,13 +87,22 @@ export default function InputView() {
     overflowY: 'auto'
   }
   
+  
   const generisiRaspored = () => {
-    history.push('/finalizeInput',  { professors, subjects, classes, classrooms, times});
+    // Logic to prepare props you want to send
+    const propsToSend = {
+      professors,
+      subjects,
+      classes,
+      classrooms,
+      times,
+    }
+    setCurrentScreen({ screen: 'finalizeInput', props: propsToSend });
   };
 
   return (
-    <div>
-        <div style={{
+    <div style={{backgroundColor:'lightblue', height: '900px'}}>
+        {currentScreen === 'main' ? (<div><div style={{
         display: 'flex',
         justifyContent: 'center'}}> 
 
@@ -126,7 +137,9 @@ export default function InputView() {
             </div>
             </div>
         ))}
-        </div>
+        </div></div>)  : (
+                <FinalizeInputView {...currentScreen.props} />
+            )}
     </div>
   );
 }

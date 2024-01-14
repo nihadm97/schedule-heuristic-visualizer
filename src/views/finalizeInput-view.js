@@ -13,11 +13,7 @@ export default function FinalizeInputView({ professors, subjects, classes, class
   const handleDropdownChange = (event, setState) => {
     setState(event.target.value);
   };
-  professors = [1,2,3,4]
-  subjects = [1,2,3,4]
-  classes = [1,2,3,4]
-  classrooms = [1,2,3,4]
-  times  = [1,2,3,4]
+
   const handleRepeatCountChange = (event) => {
     setRepeatCount(parseInt(event.target.value) || 0);
   };
@@ -39,34 +35,36 @@ export default function FinalizeInputView({ professors, subjects, classes, class
   }, [schedule]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <select value={selectedProfessor} onChange={(e) => handleDropdownChange(e, setSelectedProfessor)}>
-        {professors.map((professor, idx) => (
-          <option key={idx} value={idx}>{professor}</option>
-        ))}
-      </select>
+    <div style={{backgroundColor:'lightblue', height: '900px'}}>
+        <form onSubmit={handleSubmit} style={{padding:'40px'}}>
+        <select style={{margin:'5px'}} value={selectedProfessor} onChange={(e) => handleDropdownChange(e, setSelectedProfessor)}>
+            {professors.map((professor, idx) => (
+            <option key={idx} value={idx}>{professor}</option>
+            ))}
+        </select>
 
-      <select value={selectedSubject} onChange={(e) => handleDropdownChange(e, setSelectedSubject)}>
-        {subjects.map((subject, idx) => (
-          <option key={idx} value={idx}>{subject}</option>
-        ))}
-      </select>
+        <select style={{margin:'5px'}} value={selectedSubject} onChange={(e) => handleDropdownChange(e, setSelectedSubject)}>
+            {subjects.map((subject, idx) => (
+            <option key={idx} value={idx}>{subject}</option>
+            ))}
+        </select>
 
-      <select value={selectedClass} onChange={(e) => handleDropdownChange(e, setSelectedClass)}>
-        {classes.map((classItem, idx) => (
-          <option key={idx} value={idx}>{classItem}</option>
-        ))}
-      </select>
+        <select style={{margin:'5px'}} value={selectedClass} onChange={(e) => handleDropdownChange(e, setSelectedClass)}>
+            {classes.map((classItem, idx) => (
+            <option key={idx} value={idx}>{classItem}</option>
+            ))}
+        </select>
 
-      <select value={selectedClassroom} onChange={(e) => handleDropdownChange(e, setSelectedClassroom)}>
-        {classrooms.map((classroom, idx) => (
-          <option key={idx} value={idx}>{classroom}</option>
-        ))}
-      </select>
+        <select style={{margin:'5px'}} value={selectedClassroom} onChange={(e) => handleDropdownChange(e, setSelectedClassroom)}>
+            {classrooms.map((classroom, idx) => (
+            <option key={idx} value={idx}>{classroom}</option>
+            ))}
+        </select>
 
-      <input type="number" value={repeatCount} onChange={handleRepeatCountChange} />
+        <input style={{margin:'10px'}} type="number" value={repeatCount} onChange={handleRepeatCountChange} />
 
-      <button type="submit">Kreiraj Raspored</button>
-    </form>
+        <button type="submit">Kreiraj Raspored</button>
+        </form>
+    </div>
   );
 }
