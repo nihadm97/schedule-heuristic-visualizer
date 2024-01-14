@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import FinalizeInputView from './finalizeInput-view';
 
 export default function InputView() {
   const [professors, setProfessors] = useState([]);
@@ -7,6 +8,7 @@ export default function InputView() {
   const [classes, setClasses] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
   const [times, setTimes] = useState([]);
+  const [currentScreen, setCurrentScreen] = useState('main');
 
   const [input, setInput] = useState({
     professor: '',
@@ -16,27 +18,27 @@ export default function InputView() {
     time: ''
   });
 
-  // Log when professors change
+  
   useEffect(() => {
     console.log('Updated professors:', professors);
   }, [professors]);
 
-  // Log when subjects change
+  
   useEffect(() => {
     console.log('Updated subjects:', subjects);
   }, [subjects]);
 
-  // Log when classes change
+  
   useEffect(() => {
     console.log('Updated classes:', classes);
   }, [classes]);
 
-  // Log when classrooms change
+
   useEffect(() => {
     console.log('Updated classrooms:', classrooms);
   }, [classrooms]);
 
-  // Log when times change
+
   useEffect(() => {
     console.log('Updated times:', times);
   }, [times]);
@@ -66,7 +68,7 @@ export default function InputView() {
           setTimes(addValue);
           break;
         default:
-          // No default action
+          
       }
     }
     setInput({ ...input, [name]: '' });
@@ -84,26 +86,23 @@ export default function InputView() {
     maxHeight: '400px', 
     overflowY: 'auto'
   }
+  
+  
   const generisiRaspored = () => {
-    const raspored = []; 
-  
-    for (let i = 0; i < 100; i++) {
-        raspored.push({
-        professorIdx: Math.floor(Math.random() * professors.length),
-        timeIdx: Math.floor(Math.random() * times.length),
-        subjectIdx: Math.floor(Math.random() * subjects.length),
-        classroomIdx: Math.floor(Math.random() * classrooms.length),
-        classIdx: Math.floor(Math.random() * classes.length),
-      });
+
+    const propsToSend = {
+      professors,
+      subjects,
+      classes,
+      classrooms,
+      times,
     }
-  
-    console.log(raspored);
-    return raspored
+    setCurrentScreen({ screen: 'finalizeInput', props: propsToSend });
   };
 
   return (
-    <div>
-        <div style={{
+    <div style={{backgroundColor:'lightblue', height: '900px'}}>
+        {currentScreen === 'main' ? (<div><div style={{
         display: 'flex',
         justifyContent: 'center'}}> 
 
@@ -138,7 +137,9 @@ export default function InputView() {
             </div>
             </div>
         ))}
-        </div>
+        </div></div>)  : (
+                <FinalizeInputView {...currentScreen.props} />
+            )}
     </div>
   );
 }
