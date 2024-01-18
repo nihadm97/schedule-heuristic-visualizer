@@ -140,7 +140,7 @@ import jstat from "jstat";
 
 const generateRandomGammaInteger = (shape, scale, minValue, maxValue) => {
   // Generate a random number from the gamma distribution
-  let randomNumber = jstat.gamma.sample(shape, scale);
+  let randomNumber = jstat.gamma.sample(shape, scale) + 1;
   randomNumber = randomNumber * (Math.floor(Math.random() * 5) + 1);
 
   // Round to the nearest integer
@@ -323,18 +323,27 @@ function updateTabuList(tabuList, schedule, maxSize = 100) {
 
 function tabuSearchOptimization(
   initialSchedule,
-  number_of_iterations,
-  setTempSolution
+  number_of_iterations
 ) {
   let currentSchedule = initialSchedule;
   let position = [];
   let lowerBound = 0;
   let upperBound = time.length - 1;
   for (let i = 0; i < currentSchedule.length; i++) {
-    position[i] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
-    //position[i] = Math.round(getRdn(lowerBound, upperBound));
+    // position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
+    // position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+    position[i] = Math.round(getRdn(lowerBound, upperBound));
   }
-  switchTimes(position, currentSchedule);
+  
+  while(cost_2(switchTimes(position, currentSchedule))< -500000){
+    for (let i = 0; i < currentSchedule.length; i++) {
+      // position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
+      // position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+      position[i] = Math.round(getRdn(lowerBound, upperBound));
+    }
+  }
+  
+  currentSchedule = switchTimes(position, currentSchedule);
   let currentCost = cost_2(currentSchedule);
   let tabuList = [];
   let bestSchedule = currentSchedule;
@@ -377,7 +386,6 @@ function tabuSearchOptimization(
   }
 
   // Vraćanje najboljeg rasporeda pronađenog tokom pretrage
-  setTempSolution(bestSchedule);
   return bestSchedule;
 }
 
@@ -419,9 +427,16 @@ function batAlgorithm(
 
   let random = [];
   for (let i = 0; i < solutionInput.length; i++) {
-    // random[i] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+    // random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
     // random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
     random[i] = Math.round(getRdn(lowerBound, upperBound));
+  }
+  while(costFunc(switchTimes(random, solutionInput))< -500000){
+    for (let i = 0; i < solutionInput.length; i++) {
+      // random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
+      // random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+      random[i] = Math.round(getRdn(lowerBound, upperBound));
+    }
   }
 
   for (let i = 0; i < popSize; i++) {
@@ -433,14 +448,20 @@ function batAlgorithm(
     newPosition[i] = [];
 
     for (let j = 0; j < solutionInput.length; j++) {
-      // position[i][j] = generateRandomGammaInteger(10, 2, 0, time.length - 1);
+      // position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
       position[i][j] = Math.round(getRdn(lowerBound, upperBound));
-      // position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+      //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
       velocity[i][j] = getRdn(-1, 1);
+    }
+    while(costFunc(switchTimes(position[i], solutionInput)) < -500000){
+      for (let j = 0; j < solutionInput.length; j++) {
+        // position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
+        position[i][j] = Math.round(getRdn(lowerBound, upperBound));
+        //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+      }
     }
   }
 
-  console.log("radnom", random);
   let solution = JSON.parse(JSON.stringify(switchTimes(random, solutionInput)));
 
   // evaluate the bats after initialization
@@ -887,6 +908,20 @@ let initialSolution = [
 ];
 
 export default function MainView() {
+
+  useEffect(() => {
+    const groupedLessons = {};
+    initialSolution.forEach((lesson) => {
+      const professorName = professors[lesson.professorIdx];
+      if (!groupedLessons[professorName]) {
+        groupedLessons[professorName] = [];
+      }
+      groupedLessons[professorName].push(lesson);
+    });
+    setGroupedLessons(groupedLessons);
+    //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
+  }, []);
+
   const { selectedClassIdx, setSelectedClassIdx, schedule, setSchedule } =
     useContext(ScheduleContext);
   //console.log(selectedClassIdx, schedule);
@@ -914,6 +949,7 @@ export default function MainView() {
     color: "common.white",
     textAlign: "center",
   };
+
   const handleBatClicked = () => {
     const batSolution = batAlgorithm(
       cost_2,
@@ -939,36 +975,27 @@ export default function MainView() {
     setTempSolution(batSolution);
     setGroupedLessons(groupedLessons);
   };
-  /* Commented just to show solution made by hand */
-  useEffect(() => {
+  const handleTabuClicked = () => {
+    const tabuSolution = tabuSearchOptimization(initialSolution1, 10000);
     const groupedLessons = {};
-    initialSolution.forEach((lesson) => {
+    tabuSolution.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
       if (!groupedLessons[professorName]) {
         groupedLessons[professorName] = [];
       }
       groupedLessons[professorName].push(lesson);
     });
+    setTempSolution(tabuSolution);
     setGroupedLessons(groupedLessons);
-    /*
-    for (let index = 0; index < 100; index++) {
-
-      const randomInteger = generateRandomGammaInteger(10, 2, 0, time.length - 1);
-      console.log('Random integer from gamma distribution within the range:', randomInteger);
-      
-    }
-    */
-
-    //tabuSearchOptimization(initialSolution1, 10000, setTempSolution);
-
-    //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
-  }, []);
+  }
+  /* Commented just to show solution made by hand */
 
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
         <Box>
           <Button onClick={() => handleBatClicked()}>Run Bat algorithm</Button>
+          <Button onClick={() => handleTabuClicked()}>Run Tabu seach algorithm</Button>
         </Box>
         <Box display="flex" justifyContent="center">
           <TableContainer component={Paper} elevation={3}>
