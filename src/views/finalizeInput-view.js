@@ -1,5 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import TextField from '@mui/material/TextField';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { MenuItem } from '@mui/material';
 
 export default function FinalizeInputView({ professors, subjects, classes, classrooms, times }) {
 
@@ -41,41 +44,44 @@ export default function FinalizeInputView({ professors, subjects, classes, class
     setSchedule(prevSchedule => [...prevSchedule, ...newEntries]);
   };
 
+  /*
   useEffect(() => {
     console.log("Raspored ažuriran:", schedule);
   }, [schedule]);
+  */
 
   return (
     <div style={{ backgroundColor: 'lightblue', height: '900px', 
     position: 'absolute', left: '30%' }}>
         <form onSubmit={handleSubmit} style={{padding:'40px'}}>
-        <select style={{margin:'5px'}} value={selectedProfessor} onChange={(e) => handleDropdownChange(e, setSelectedProfessor)}>
+        <Select style={{margin:'5px'}} value={selectedProfessor} onChange={(e) => handleDropdownChange(e, setSelectedProfessor)}>
             {professors.map((professor, idx) => (
-            <option key={idx} value={idx}>{professor}</option>
+            <MenuItem  key={idx} value={idx}>{professor}</MenuItem >
             ))}
-        </select>
+        </Select>
 
-        <select style={{margin:'5px'}} value={selectedSubject} onChange={(e) => handleDropdownChange(e, setSelectedSubject)}>
+        <Select style={{margin:'5px'}} value={selectedSubject} onChange={(e) => handleDropdownChange(e, setSelectedSubject)}>
             {subjects.map((subject, idx) => (
-            <option key={idx} value={idx}>{subject}</option>
+            <MenuItem  key={idx} value={idx}>{subject}</MenuItem >
             ))}
-        </select>
+        </Select>
 
-        <select style={{margin:'5px'}} value={selectedClass} onChange={(e) => handleDropdownChange(e, setSelectedClass)}>
+        <Select style={{margin:'5px'}} value={selectedClass} onChange={(e) => handleDropdownChange(e, setSelectedClass)}>
             {classes.map((classItem, idx) => (
-            <option key={idx} value={idx}>{classItem}</option>
+            <MenuItem  key={idx} value={idx}>{classItem}</MenuItem >
             ))}
-        </select>
+        </Select>
 
-        <select style={{margin:'5px'}} value={selectedClassroom} onChange={(e) => handleDropdownChange(e, setSelectedClassroom)}>
+        <Select style={{margin:'5px'}} value={selectedClassroom} onChange={(e) => handleDropdownChange(e, setSelectedClassroom)}>
             {classrooms.map((classroom, idx) => (
-            <option key={idx} value={idx}>{classroom}</option>
+            <MenuItem  key={idx} value={idx}>{classroom}</MenuItem >
             ))}
-        </select>
+        </Select>
 
-        <input style={{margin:'10px'}} type="number" value={repeatCount} onChange={handleRepeatCountChange} />
+        <TextField style={{margin:'10px'}} type="number" value={repeatCount} onChange={handleRepeatCountChange} />
 
-        <button type="submit">Dodaj u raspored</button>
+        <button type="submit" style={{ margin: '10px', padding: '5px 10px', fontSize: '16px', 
+        cursor: 'pointer', background: 'blue', color: 'white', border: 'none', borderRadius: '5px' }}>Add to schedule</button>
         </form>
         <div>
           {submissionResults.map((result, idx) => (
@@ -89,6 +95,10 @@ export default function FinalizeInputView({ professors, subjects, classes, class
               </div>
           ))}
         </div>
+        <button style={{ margin: '15px', padding: '10px 15px', fontSize: '16px', 
+        cursor: 'pointer', background: 'red', color: 'white', border: 'none', borderRadius: '5px' }} onClick={() => console.log(schedule, professors, subjects, classes, classrooms, times)}>
+                Generate schedule
+        </button>
     </div>
   );
 }
