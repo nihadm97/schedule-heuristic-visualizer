@@ -330,19 +330,20 @@ function tabuSearchOptimization(
   let lowerBound = 0;
   let upperBound = time.length - 1;
   for (let i = 0; i < currentSchedule.length; i++) {
-    // position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
-    // position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
-    position[i] = Math.round(getRdn(lowerBound, upperBound));
+    position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
+    //position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
+    //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
   }
-  
-  while(cost_2(switchTimes(position, currentSchedule))< -500000){
+  console.log("Pretražujemo inicijalno rješenje...")
+  while(cost_2(switchTimes(position, currentSchedule))< -600000){ 
+    //console.log(cost_2(switchTimes(position, currentSchedule)));
     for (let i = 0; i < currentSchedule.length; i++) {
-      // position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
-      // position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
-      position[i] = Math.round(getRdn(lowerBound, upperBound));
+      position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
+      //position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
+      //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
     }
   }
-  
+  console.log("Trošak inicijalnog rješenja: ", cost_2(switchTimes(position, currentSchedule)));
   currentSchedule = switchTimes(position, currentSchedule);
   let currentCost = cost_2(currentSchedule);
   let tabuList = [];
@@ -386,6 +387,7 @@ function tabuSearchOptimization(
   }
 
   // Vraćanje najboljeg rasporeda pronađenog tokom pretrage
+  console.log("Trošak rješenja", cost_2(bestSchedule));
   return bestSchedule;
 }
 
@@ -414,8 +416,8 @@ function batAlgorithm(
     throw new Error(
       "Please pass a valid cost function for your optimization problems"
     );
-  const ALPHA = 1;
-  const GAMMA = 1;
+  const ALPHA = 0.99999;
+  const GAMMA = 0.2;
 
   // parameters initialization using uniform distribution
   let position = [];
@@ -426,19 +428,21 @@ function batAlgorithm(
   let newPosition = []; // bats local array used to calculate bats new position at each generation, before acceptation
 
   let random = [];
+  console.log("Pretražujemo inicijalno rješenje...")
   for (let i = 0; i < solutionInput.length; i++) {
-    // random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
-    // random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
-    random[i] = Math.round(getRdn(lowerBound, upperBound));
+    //random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
+    //random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
+    random[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
   }
-  while(costFunc(switchTimes(random, solutionInput))< -500000){
+  while(costFunc(switchTimes(random, solutionInput))< -450000){
+    //console.log(costFunc(switchTimes(random, solutionInput)));
     for (let i = 0; i < solutionInput.length; i++) {
-      // random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
-      // random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
-      random[i] = Math.round(getRdn(lowerBound, upperBound));
+      //random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
+      //random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
+      random[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
     }
   }
-
+  console.log("Trošak inicijalnog rješenja: ", costFunc(switchTimes(random, solutionInput)));
   for (let i = 0; i < popSize; i++) {
     loudness[i] = getRdn(0, maxLoudness);
     pulseRate[i] = getRdn(0, maxPulseRate);
@@ -448,22 +452,23 @@ function batAlgorithm(
     newPosition[i] = [];
 
     for (let j = 0; j < solutionInput.length; j++) {
-      // position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
-      position[i][j] = Math.round(getRdn(lowerBound, upperBound));
-      //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+      //position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
+      position[i][j] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
+      //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution 
       velocity[i][j] = getRdn(-1, 1);
     }
-    while(costFunc(switchTimes(position[i], solutionInput)) < -500000){
+    while(costFunc(switchTimes(position[i], solutionInput)) < -450000){
+      //console.log(costFunc(switchTimes(position[i], solutionInput)));
       for (let j = 0; j < solutionInput.length; j++) {
-        // position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1);
-        position[i][j] = Math.round(getRdn(lowerBound, upperBound));
-        //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1);
+        //position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -700000 for this distribution
+        position[i][j] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
+        //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -800000 for this distribution
       }
     }
   }
 
   let solution = JSON.parse(JSON.stringify(switchTimes(random, solutionInput)));
-
+  
   // evaluate the bats after initialization
   let cost = [];
 
@@ -477,14 +482,14 @@ function batAlgorithm(
 
   // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
-    // console.log("gen: ", gen);
+
     let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
     console.log(cost[indexMax]);
 
     bestBat = position[indexMax]; // best bat so far
     solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
 
-    if (costFunc(lastBat) < costFunc(bestBat)) {
+    if (costFunc(switchTimes(lastBat, solution)) < costFunc(switchTimes(bestBat, solution))) {
       lastBat = bestBat;
       counter = 0;
     } else {
@@ -553,7 +558,7 @@ function batAlgorithm(
     if (counter >= 50) {
       let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
       for (let i = 0; i < popSize; i++) {
-        if (costFunc(position[indexMax]) != costFunc(position[i])) {
+        if (costFunc(switchTimes(indexMax, solution)) != costFunc(switchTimes(position[i], solution))) {
           position[i] = [];
 
           for (let j = 0; j < solutionInput.length; j++) {
@@ -580,7 +585,7 @@ function batAlgorithm(
   solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
   let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
   console.log(cost[indexMax]);
-  console.log(costFunc(solution));
+  console.log("Trošak rješenja:", costFunc(solution));
   let newSolution = JSON.parse(JSON.stringify(solution));
   // setTempSolution(newSolution);
   return solution;
@@ -954,8 +959,8 @@ export default function MainView() {
     const batSolution = batAlgorithm(
       cost_2,
       100,
-      300,
-      300,
+      1000,
+      100,
       initialSolution,
       1.0,
       0.4,
