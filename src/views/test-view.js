@@ -984,12 +984,16 @@ export default function MainView() {
       }
       groupedLessons[professorName].push(lesson);
     });
+
     setGroupedLessons(groupedLessons);
+
+    // setRefresh(!refresh);
     //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
   }, [schedule]);
 
   const [tempSolution, setTempSolution] = useState(initialSolution);
   const [groupedLessons, setGroupedLessons] = useState({});
+  const [refresh, setRefresh] = useState(true);
   // const groupedLessons = {};
   // tempSolution.forEach((lesson) => {
   //   const professorName = professors[lesson.professorIdx];
@@ -1024,7 +1028,7 @@ export default function MainView() {
       0,
       29,
       0,
-      time.length - 1
+      times.length - 1
     );
     const groupedLessons = {};
     batSolution.forEach((lesson) => {
@@ -1067,7 +1071,7 @@ export default function MainView() {
               <TableHead>
                 <TableRow>
                   <TableCell sx={tableHeaderStyle}>Professor</TableCell>
-                  {time.map((timeslot, index) => (
+                  {times.map((timeslot, index) => (
                     <TableCell key={`head-cell-${index}`} sx={tableHeaderStyle}>
                       {timeslot}
                     </TableCell>
@@ -1075,16 +1079,17 @@ export default function MainView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.keys(groupedLessons).map((professorName, index) => (
-                  <TableRow key={`row-${index}`}>
-                    <TableCell component="th" scope="row" sx={tableCellStyle}>
-                      {professorName}
-                    </TableCell>
-                    {time.map((_, timeslotIndex) =>
-                      renderCell(timeslotIndex, groupedLessons[professorName])
-                    )}
-                  </TableRow>
-                ))}
+                {groupedLessons &&
+                  Object.keys(groupedLessons).map((professorName, index) => (
+                    <TableRow key={`row-${index}`}>
+                      <TableCell component="th" scope="row" sx={tableCellStyle}>
+                        {professorName}
+                      </TableCell>
+                      {times.map((_, timeslotIndex) =>
+                        renderCell(timeslotIndex, groupedLessons[professorName])
+                      )}
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>
