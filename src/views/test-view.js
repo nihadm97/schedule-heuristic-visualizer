@@ -321,10 +321,7 @@ function updateTabuList(tabuList, schedule, maxSize = 100) {
   }
 }
 
-function tabuSearchOptimization(
-  initialSchedule,
-  number_of_iterations
-) {
+function tabuSearchOptimization(initialSchedule, number_of_iterations) {
   let currentSchedule = initialSchedule;
   let position = [];
   let lowerBound = 0;
@@ -334,8 +331,8 @@ function tabuSearchOptimization(
     //position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
     //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
   }
-  console.log("Pretražujemo inicijalno rješenje...")
-  while(cost_2(switchTimes(position, currentSchedule))< -600000){ 
+  console.log("Pretražujemo inicijalno rješenje...");
+  while (cost_2(switchTimes(position, currentSchedule)) < -600000) {
     //console.log(cost_2(switchTimes(position, currentSchedule)));
     for (let i = 0; i < currentSchedule.length; i++) {
       position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
@@ -343,7 +340,10 @@ function tabuSearchOptimization(
       //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
     }
   }
-  console.log("Trošak inicijalnog rješenja: ", cost_2(switchTimes(position, currentSchedule)));
+  console.log(
+    "Trošak inicijalnog rješenja: ",
+    cost_2(switchTimes(position, currentSchedule))
+  );
   currentSchedule = switchTimes(position, currentSchedule);
   let currentCost = cost_2(currentSchedule);
   let tabuList = [];
@@ -428,13 +428,13 @@ function batAlgorithm(
   let newPosition = []; // bats local array used to calculate bats new position at each generation, before acceptation
 
   let random = [];
-  console.log("Pretražujemo inicijalno rješenje...")
+  console.log("Pretražujemo inicijalno rješenje...");
   for (let i = 0; i < solutionInput.length; i++) {
     //random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
     //random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
     random[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
   }
-  while(costFunc(switchTimes(random, solutionInput))< -450000){
+  while (costFunc(switchTimes(random, solutionInput)) < -450000) {
     //console.log(costFunc(switchTimes(random, solutionInput)));
     for (let i = 0; i < solutionInput.length; i++) {
       //random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
@@ -442,7 +442,10 @@ function batAlgorithm(
       random[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
     }
   }
-  console.log("Trošak inicijalnog rješenja: ", costFunc(switchTimes(random, solutionInput)));
+  console.log(
+    "Trošak inicijalnog rješenja: ",
+    costFunc(switchTimes(random, solutionInput))
+  );
   for (let i = 0; i < popSize; i++) {
     loudness[i] = getRdn(0, maxLoudness);
     pulseRate[i] = getRdn(0, maxPulseRate);
@@ -454,10 +457,10 @@ function batAlgorithm(
     for (let j = 0; j < solutionInput.length; j++) {
       //position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
       position[i][j] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
-      //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution 
+      //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
       velocity[i][j] = getRdn(-1, 1);
     }
-    while(costFunc(switchTimes(position[i], solutionInput)) < -450000){
+    while (costFunc(switchTimes(position[i], solutionInput)) < -450000) {
       //console.log(costFunc(switchTimes(position[i], solutionInput)));
       for (let j = 0; j < solutionInput.length; j++) {
         //position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -700000 for this distribution
@@ -468,7 +471,7 @@ function batAlgorithm(
   }
 
   let solution = JSON.parse(JSON.stringify(switchTimes(random, solutionInput)));
-  
+
   // evaluate the bats after initialization
   let cost = [];
 
@@ -482,14 +485,16 @@ function batAlgorithm(
 
   // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
-
     let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
     console.log(cost[indexMax]);
 
     bestBat = position[indexMax]; // best bat so far
     solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
 
-    if (costFunc(switchTimes(lastBat, solution)) < costFunc(switchTimes(bestBat, solution))) {
+    if (
+      costFunc(switchTimes(lastBat, solution)) <
+      costFunc(switchTimes(bestBat, solution))
+    ) {
       lastBat = bestBat;
       counter = 0;
     } else {
@@ -558,7 +563,10 @@ function batAlgorithm(
     if (counter >= 50) {
       let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
       for (let i = 0; i < popSize; i++) {
-        if (costFunc(switchTimes(indexMax, solution)) != costFunc(switchTimes(position[i], solution))) {
+        if (
+          costFunc(switchTimes(indexMax, solution)) !=
+          costFunc(switchTimes(position[i], solution))
+        ) {
           position[i] = [];
 
           for (let j = 0; j < solutionInput.length; j++) {
@@ -597,34 +605,34 @@ const theme = createTheme({
   },
 });
 
-const renderCell = (timeslotIndex, professorLessons) => {
-  const lessonsInThisTimeslot = professorLessons.filter(
-    (lesson) => lesson.timeIdx === timeslotIndex
-  );
+// const renderCell = (timeslotIndex, professorLessons) => {
+//   const lessonsInThisTimeslot = professorLessons.filter(
+//     (lesson) => lesson.timeIdx === timeslotIndex
+//   );
 
-  const cellStyles = {
-    bgcolor:
-      lessonsInThisTimeslot.length > 0 ? "secondary.main" : "background.paper",
-    color: lessonsInThisTimeslot.length > 0 ? "common.white" : "text.primary",
-    textAlign: "center",
-    borderRight:
-      timeslotIndex < time.length - 1 ? "1px solid rgba(224, 224, 224, 1)" : "",
-  };
+//   const cellStyles = {
+//     bgcolor:
+//       lessonsInThisTimeslot.length > 0 ? "secondary.main" : "background.paper",
+//     color: lessonsInThisTimeslot.length > 0 ? "common.white" : "text.primary",
+//     textAlign: "center",
+//     borderRight:
+//       timeslotIndex < time.length - 1 ? "1px solid rgba(224, 224, 224, 1)" : "",
+//   };
 
-  return (
-    <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
-      {lessonsInThisTimeslot.map((lesson, idx) => (
-        <div key={idx}>
-          {classes[lesson.classIdx]}
-          <br />
-          {classrooms[lesson.classroomIdx]}
-          <br />
-          {subjects[lesson.subjectIdx]}
-        </div>
-      ))}
-    </TableCell>
-  );
-};
+//   return (
+//     <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
+//       {lessonsInThisTimeslot.map((lesson, idx) => (
+//         <div key={idx}>
+//           {classes[lesson.classIdx]}
+//           <br />
+//           {classrooms[lesson.classroomIdx]}
+//           <br />
+//           {subjects[lesson.subjectIdx]}
+//         </div>
+//       ))}
+//     </TableCell>
+//   );
+// };
 
 const initialSolution1 = [
   cell1,
@@ -913,10 +921,63 @@ let initialSolution = [
 ];
 
 export default function MainView() {
+  const {
+    selectedClassIdx,
+    setSelectedClassIdx,
+    setSelectedClassroomIdx,
+    setSelectedProfessorIdx,
+    schedule,
+    setSchedule,
+    professors,
+    classes,
+    classrooms,
+    subjects,
+    times,
+  } = useContext(ScheduleContext);
+  console.log(
+    "Context: ",
+    schedule,
+    professors,
+    subjects,
+    times,
+    classes,
+    classrooms
+  );
+  const renderCell = (timeslotIndex, professorLessons) => {
+    const lessonsInThisTimeslot = professorLessons.filter(
+      (lesson) => lesson.timeIdx === timeslotIndex
+    );
 
+    const cellStyles = {
+      bgcolor:
+        lessonsInThisTimeslot.length > 0
+          ? "secondary.main"
+          : "background.paper",
+      color: lessonsInThisTimeslot.length > 0 ? "common.white" : "text.primary",
+      textAlign: "center",
+      borderRight:
+        timeslotIndex < time.length - 1
+          ? "1px solid rgba(224, 224, 224, 1)"
+          : "",
+    };
+
+    return (
+      <TableCell key={`cell-${timeslotIndex}`} sx={cellStyles}>
+        {lessonsInThisTimeslot.map((lesson, idx) => (
+          <div key={idx}>
+            {classes[lesson.classIdx]}
+            <br />
+            {classrooms[lesson.classroomIdx]}
+            <br />
+            {subjects[lesson.subjectIdx]}
+          </div>
+        ))}
+      </TableCell>
+    );
+  };
   useEffect(() => {
     const groupedLessons = {};
-    initialSolution.forEach((lesson) => {
+    schedule.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
       if (!groupedLessons[professorName]) {
         groupedLessons[professorName] = [];
@@ -925,11 +986,7 @@ export default function MainView() {
     });
     setGroupedLessons(groupedLessons);
     //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
-  }, []);
-
-  const { selectedClassIdx, setSelectedClassIdx, schedule, setSchedule } =
-    useContext(ScheduleContext);
-  //console.log(selectedClassIdx, schedule);
+  }, [schedule]);
 
   const [tempSolution, setTempSolution] = useState(initialSolution);
   const [groupedLessons, setGroupedLessons] = useState({});
@@ -961,7 +1018,7 @@ export default function MainView() {
       100,
       1000,
       100,
-      initialSolution,
+      schedule,
       1.0,
       0.4,
       0,
@@ -981,7 +1038,7 @@ export default function MainView() {
     setGroupedLessons(groupedLessons);
   };
   const handleTabuClicked = () => {
-    const tabuSolution = tabuSearchOptimization(initialSolution1, 10000);
+    const tabuSolution = tabuSearchOptimization(schedule, 10000);
     const groupedLessons = {};
     tabuSolution.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
@@ -992,7 +1049,7 @@ export default function MainView() {
     });
     setTempSolution(tabuSolution);
     setGroupedLessons(groupedLessons);
-  }
+  };
   /* Commented just to show solution made by hand */
 
   return (
@@ -1000,7 +1057,9 @@ export default function MainView() {
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
         <Box>
           <Button onClick={() => handleBatClicked()}>Run Bat algorithm</Button>
-          <Button onClick={() => handleTabuClicked()}>Run Tabu seach algorithm</Button>
+          <Button onClick={() => handleTabuClicked()}>
+            Run Tabu seach algorithm
+          </Button>
         </Box>
         <Box display="flex" justifyContent="center">
           <TableContainer component={Paper} elevation={3}>
@@ -1030,7 +1089,8 @@ export default function MainView() {
             </Table>
           </TableContainer>
         </Box>
-        <Box>
+        <Box sx={{ display: "flex", marginTop: "20px", fontSize: 20 }}>
+          <Box>Rasporedi za razrede:</Box>
           {classes.map((className, index) => (
             <Link href={"/class"}>
               <Button
@@ -1038,10 +1098,45 @@ export default function MainView() {
                 onClick={() => {
                   //console.log("clicked ", index);
                   setSelectedClassIdx(index);
-                  setSchedule(initialSolutionTest);
+                  // console.log(schedule);
+                  // setSchedule(initialSolutionTest);
                 }}
               >
                 {className}
+              </Button>
+            </Link>
+          ))}
+        </Box>
+        <Box sx={{ display: "flex", marginTop: "20px", fontSize: 20 }}>
+          <Box>Rasporedi za kabinete:</Box>
+          {classrooms.map((classroom, index) => (
+            <Link href={"/classroom"}>
+              <Button
+                id={classroom}
+                onClick={() => {
+                  //console.log("clicked ", index);
+                  setSelectedClassroomIdx(index);
+                  // setSchedule(initialSolutionTest);
+                }}
+              >
+                {classroom}
+              </Button>
+            </Link>
+          ))}
+        </Box>
+        <Box sx={{ display: "flex", marginTop: "20px", fontSize: 20 }}>
+          <Box>Rasporedi za profesore:</Box>
+          {professors.map((professor, index) => (
+            <Link href={"/professor"}>
+              <Button
+                id={professor}
+                onClick={() => {
+                  //console.log("clicked ", index);
+                  setSelectedClassIdx(index);
+                  // setSchedule(initialSolutionTest);
+                }}
+              >
+                {professor}
               </Button>
             </Link>
           ))}

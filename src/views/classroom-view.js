@@ -10,7 +10,6 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import React, { useState, useEffect, useContext } from "react";
 import ScheduleContext from "@/context/scheduleContext";
 
-import { professors, subjects, time, classrooms, classes } from "../utils/data";
 import { generateEtags } from "../../next.config";
 
 const theme = createTheme({
@@ -19,24 +18,32 @@ const theme = createTheme({
   },
 });
 
-export default function ClassView() {
-  const { selectedClassIdx, schedule, subjects, times, classrooms } =
-    useContext(ScheduleContext);
-  const [classSchedule, setClassSchedule] = useState([]);
+export default function ClassroomView() {
+  const {
+    selectedClassroomIdx,
+    schedule,
+    subjects,
+    times,
+    classes,
+    classrooms,
+    professors,
+  } = useContext(ScheduleContext);
+  const [classroomSchedule, setClassroomSchedule] = useState([]);
 
   useEffect(() => {
     const timeslotsPerDay = times.length / 5;
     let arr = [];
     for (let i = 0; i < schedule.length; i++) {
-      if (schedule[i].classIdx == selectedClassIdx) {
+      if (schedule[i].classroomIdx == selectedClassroomIdx) {
         arr.push(schedule[i]);
+        // console.log(schedule[i]);
       }
     }
-    let classLessons = [];
+    let classroomCells = [];
     for (let j = 0; j < timeslotsPerDay; j++) {
-      classLessons[j] = [];
+      classroomCells[j] = [];
       for (let l = 0; l < 5; l++) {
-        classLessons[j][l] = {
+        classroomCells[j][l] = {
           professorIdx: null,
           timeIdx: null,
           subjectIdx: null,
@@ -47,7 +54,7 @@ export default function ClassView() {
     }
 
     for (let k = 0; k < arr.length; k++) {
-      classLessons[parseInt(arr[k].timeIdx % timeslotsPerDay)][
+      classroomCells[parseInt(arr[k].timeIdx % timeslotsPerDay)][
         parseInt(arr[k].timeIdx / timeslotsPerDay)
       ] = {
         professorIdx: arr[k].professorIdx,
@@ -57,7 +64,7 @@ export default function ClassView() {
         classIdx: arr[k].classIdx,
       };
     }
-    setClassSchedule(classLessons);
+    setClassroomSchedule(classroomCells);
   }, [schedule]);
 
   const tableCellStyle = {
@@ -74,14 +81,14 @@ export default function ClassView() {
   };
   // const times = [1, 2, 3, 4, 5, 6];
   let times2 = [];
-  // console.log(classSchedule, schedule);
+  // console.log(classroomSchedule, schedule);
   for (let i = 0; i < times.length / 5; i++) times2.push(i + 1);
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
-        <Box>Schedule for class {classes[selectedClassIdx]}</Box>
+        <Box>Schedule for classroom {classrooms[selectedClassroomIdx]}</Box>
         <Box display="flex" justifyContent="center">
           <TableContainer component={Paper} elevation={3}>
             <Table sx={{ minWidth: 650 }} aria-label="schedule table">
@@ -101,11 +108,13 @@ export default function ClassView() {
                     <TableCell sx={tableHeaderStyle}>
                       {time} time slot
                     </TableCell>
-                    {classSchedule[index]?.map((lesson) => (
+                    {classroomSchedule[index]?.map((lesson) => (
                       <TableCell sx={tableHeaderStyle}>
                         {subjects[lesson.subjectIdx]}
                         {"\n"}
-                        {classrooms[lesson.classroomIdx]}
+                        {classes[lesson.classIdx]}
+                        {"\n"}
+                        {professors[lesson.professorIdx]}
                       </TableCell>
                     ))}
                   </TableRow>
