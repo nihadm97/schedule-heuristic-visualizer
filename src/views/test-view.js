@@ -18,117 +18,9 @@ import {
   checkBound,
   average,
 } from "../utils/helper-functions";
-import {
-  professors,
-  subjects,
-  time,
-  classrooms,
-  classes,
-  cell1,
-  cell2,
-  cell3,
-  cell4,
-  cell5,
-  cell6,
-  cell7,
-  cell8,
-  cell9,
-  cell10,
-  cell11,
-  cell12,
-  cell13,
-  cell14,
-  cell15,
-  cell16,
-  cell17,
-  cell18,
-  cell19,
-  cell20,
-  cell21,
-  cell22,
-  cell23,
-  cell24,
-  cell25,
-  cell26,
-  cell27,
-  cell28,
-  cell29,
-  cell30,
-  cell31,
-  cell32,
-  cell33,
-  cell34,
-  cell35,
-  cell36,
-  cell37,
-  cell38,
-  cell39,
-  cell40,
-  cell41,
-  cell42,
-  cell43,
-  cell44,
-  cell45,
-  cell46,
-  cell47,
-  cell48,
-  cell49,
-  cell50,
-  cell51,
-  cell52,
-  cell53,
-  cell54,
-  cell55,
-  cell56,
-  cell57,
-  cell58,
-  cell59,
-  cell60,
-  cell61,
-  cell62,
-  cell63,
-  cell64,
-  cell65,
-  cell66,
-  cell67,
-  cell68,
-  cell69,
-  cell70,
-  cell71,
-  cell72,
-  cell73,
-  cell74,
-  cell75,
-  cell76,
-  cell77,
-  cell78,
-  cell79,
-  cell80,
-  cell81,
-  cell82,
-  cell83,
-  cell84,
-  cell85,
-  cell86,
-  cell87,
-  cell88,
-  cell89,
-  cell90,
-  cell91,
-  cell92,
-  cell93,
-  cell94,
-  cell95,
-  cell96,
-  cell97,
-  cell98,
-  cell99,
-  cell100,
-  cell101,
-  cell102,
-  cell103,
-  cell104,
-} from "../utils/data";
+
+import { scheduleExample1, subjectsExample, professorsExample, classExample, classroomsExample, timeExample } from "@/utils/data";
+
 import React, { useState, useEffect, useContext } from "react";
 import ScheduleContext from "@/context/scheduleContext";
 import Link from "next/link";
@@ -161,115 +53,6 @@ function cost_2(x) {
   return sum;
 }
 
-const initialSolutionTest = JSON.parse(
-  JSON.stringify([
-    cell1,
-    cell2,
-    cell3,
-    cell4,
-    cell5,
-    cell6,
-    cell7,
-    cell8,
-    cell9,
-    cell10,
-    cell11,
-    cell12,
-    cell13,
-    cell14,
-    cell15,
-    cell16,
-    cell17,
-    cell18,
-    cell19,
-    cell20,
-    cell21,
-    cell22,
-    cell23,
-    cell24,
-    cell25,
-    cell26,
-    cell27,
-    cell28,
-    cell29,
-    cell30,
-    cell31,
-    cell32,
-    cell33,
-    cell34,
-    cell35,
-    cell36,
-    cell37,
-    cell38,
-    cell39,
-    cell40,
-    cell41,
-    cell42,
-    cell43,
-    cell44,
-    cell45,
-    cell46,
-    cell47,
-    cell48,
-    cell49,
-    cell50,
-    cell51,
-    cell52,
-    cell53,
-    cell54,
-    cell55,
-    cell56,
-    cell57,
-    cell58,
-    cell59,
-    cell60,
-    cell61,
-    cell62,
-    cell63,
-    cell64,
-    cell65,
-    cell66,
-    cell67,
-    cell68,
-    cell69,
-    cell70,
-    cell71,
-    cell72,
-    cell73,
-    cell74,
-    cell75,
-    cell76,
-    cell77,
-    cell78,
-    cell79,
-    cell80,
-    cell81,
-    cell82,
-    cell83,
-    cell84,
-    cell85,
-    cell86,
-    cell87,
-    cell88,
-    cell89,
-    cell90,
-    cell91,
-    cell92,
-    cell93,
-    cell94,
-    cell95,
-    cell96,
-    cell97,
-    cell98,
-    cell99,
-    cell100,
-    cell101,
-    cell102,
-    cell103,
-    cell104,
-  ])
-);
-
 function switchTimes(arrayTimes, arraySolution) {
   let arrayTemp = JSON.parse(JSON.stringify(arraySolution));
   // switch old timeslots with new timeslots
@@ -280,27 +63,29 @@ function switchTimes(arrayTimes, arraySolution) {
 }
 
 // tabu search
-function generateNeighbors(schedule) {
+function generateNeighbors(schedule, number) {
   let neighbors = [];
   const numberOfChanges = Math.floor(schedule.length / 2);
 
   for (let i = 0; i < numberOfChanges; i++) {
     let newSchedule = JSON.parse(JSON.stringify(schedule));
     let randomIndex = Math.floor(Math.random() * newSchedule.length);
-    let randomChange = Math.random() > 0.5 ? "timeIdx" : "classroomIdx";
+    //let randomChange = Math.random() > 0.5 ? "timeIdx" : "classroomIdx"; switching rooms not efective, especially by using a 50/50 aproach with timeslots
 
-    if (randomChange === "timeIdx") {
+    //if (randomChange === "timeIdx") {
       newSchedule[randomIndex].timeIdx = Math.floor(
-        Math.random() * time.length
+        Math.random() * number
       );
+    /*
     } else {
       newSchedule[randomIndex].classroomIdx = Math.floor(
         Math.random() * classrooms.length
       );
     }
-
+    */
     neighbors.push(newSchedule);
   }
+  
 
   return neighbors;
 }
@@ -321,22 +106,21 @@ function updateTabuList(tabuList, schedule, maxSize = 100) {
   }
 }
 
-function tabuSearchOptimization(initialSchedule, number_of_iterations) {
+function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBound, upperBound) {
   let currentSchedule = initialSchedule;
   let position = [];
-  let lowerBound = 0;
-  let upperBound = time.length - 1;
+
   for (let i = 0; i < currentSchedule.length; i++) {
-    position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
-    //position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
+    position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
+    //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
     //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
   }
   console.log("Pretražujemo inicijalno rješenje...");
   while (cost_2(switchTimes(position, currentSchedule)) < -600000) {
     //console.log(cost_2(switchTimes(position, currentSchedule)));
     for (let i = 0; i < currentSchedule.length; i++) {
-      position[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
-      //position[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
+      position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
+      //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
       //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
     }
   }
@@ -352,7 +136,7 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations) {
 
   for (let i = 0; i < number_of_iterations; i++) {
     // Generisanje susjednih rasporeda
-    let neighbors = generateNeighbors(currentSchedule);
+    let neighbors = generateNeighbors(currentSchedule, upperBound + 1);
 
     // Filtriranje onih koji su već na tabu listi
     neighbors = neighbors.filter(
@@ -408,9 +192,7 @@ function batAlgorithm(
   fMin = 0,
   fMax = 10,
   lowerBound = 0,
-  upperBound = time.length - 1
-  // tempSolution,
-  // setTempSolution
+  upperBound
 ) {
   if (!costFunc)
     throw new Error(
@@ -634,113 +416,6 @@ const theme = createTheme({
 //   );
 // };
 
-const initialSolution1 = [
-  cell1,
-  cell2,
-  cell3,
-  cell4,
-  cell5,
-  cell6,
-  cell7,
-  cell8,
-  cell9,
-  cell10,
-  cell11,
-  cell12,
-  cell13,
-  cell14,
-  cell15,
-  cell16,
-  cell17,
-  cell18,
-  cell19,
-  cell20,
-  cell21,
-  cell22,
-  cell23,
-  cell24,
-  cell25,
-  cell26,
-  cell27,
-  cell28,
-  cell29,
-  cell30,
-  cell31,
-  cell32,
-  cell33,
-  cell34,
-  cell35,
-  cell36,
-  cell37,
-  cell38,
-  cell39,
-  cell40,
-  cell41,
-  cell42,
-  cell43,
-  cell44,
-  cell45,
-  cell46,
-  cell47,
-  cell48,
-  cell49,
-  cell50,
-  cell51,
-  cell52,
-  cell53,
-  cell54,
-  cell55,
-  cell56,
-  cell57,
-  cell58,
-  cell59,
-  cell60,
-  cell61,
-  cell62,
-  cell63,
-  cell64,
-  cell65,
-  cell66,
-  cell67,
-  cell68,
-  cell69,
-  cell70,
-  cell71,
-  cell72,
-  cell73,
-  cell74,
-  cell75,
-  cell76,
-  cell77,
-  cell78,
-  cell79,
-  cell80,
-  cell81,
-  cell82,
-  cell83,
-  cell84,
-  cell85,
-  cell86,
-  cell87,
-  cell88,
-  cell89,
-  cell90,
-  cell91,
-  cell92,
-  cell93,
-  cell94,
-  cell95,
-  cell96,
-  cell97,
-  cell98,
-  cell99,
-  cell100,
-  cell101,
-  cell102,
-  cell103,
-  cell104,
-];
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    2-OPT ALGORITHM    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -786,139 +461,49 @@ function modifyScheduleClass(schedule, index1, index2) {
   return newSchedule;
 }
 
-function optimizeScheduleWith2Opt(initialSchedule, setTempSolution) {
+function optimizeScheduleWith2Opt(initialSchedule, lowerBound, upperBound) {
   let bestSchedule = initialSchedule;
   let position = [];
-  let lowerBound = 0;
-  let upperBound = time.length - 1;
-  for (let i = 0; i < bestSchedule.length; i++) {
-    position[i] = Math.round(getRdn(lowerBound, upperBound));
+
+  for (let i = 0; i < initialSchedule.length; i++) {
+    position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
+    //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
+    //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
   }
+  console.log("Pretražujemo inicijalno rješenje...");
+  while (cost_2(switchTimes(position, initialSchedule)) < -600000) {
+    //console.log(cost_2(switchTimes(position, currentSchedule)));
+    for (let i = 0; i < initialSchedule.length; i++) {
+      position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
+      //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
+      //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
+    }
+  }
+  console.log(
+    "Trošak inicijalnog rješenja: ",
+    cost_2(switchTimes(position, bestSchedule))
+  );
   switchTimes(position, bestSchedule);
 
-  let bestCost = cost_2(bestSchedule);
+  let bestCost = cost_2(switchTimes(position, bestSchedule));
 
   while (true) {
     let two_opt_solution = generateImprovedSchedule(bestSchedule);
     console.log(bestCost);
-    if (cost_2(two_opt_solution) > bestCost) {
-      bestCost = cost_2(two_opt_solution);
+    if (cost_2(switchTimes(position, two_opt_solution)) > bestCost) {
+      bestCost = cost_2(switchTimes(position, two_opt_solution))
       bestSchedule = two_opt_solution;
     } else {
       break;
     }
   }
 
-  setTempSolution(bestSchedule);
+  console.log(
+    "Trošak rješenja: ",
+    cost_2(switchTimes(position, bestSchedule))
+  );
   return bestSchedule;
 }
-
-let initialSolution = [
-  cell1,
-  cell2,
-  cell3,
-  cell4,
-  cell5,
-  cell6,
-  cell7,
-  cell8,
-  cell9,
-  cell10,
-  cell11,
-  cell12,
-  cell13,
-  cell14,
-  cell15,
-  cell16,
-  cell17,
-  cell18,
-  cell19,
-  cell20,
-  cell21,
-  cell22,
-  cell23,
-  cell24,
-  cell25,
-  cell26,
-  cell27,
-  cell28,
-  cell29,
-  cell30,
-  cell31,
-  cell32,
-  cell33,
-  cell34,
-  cell35,
-  cell36,
-  cell37,
-  cell38,
-  cell39,
-  cell40,
-  cell41,
-  cell42,
-  cell43,
-  cell44,
-  cell45,
-  cell46,
-  cell47,
-  cell48,
-  cell49,
-  cell50,
-  cell51,
-  cell52,
-  cell53,
-  cell54,
-  cell55,
-  cell56,
-  cell57,
-  cell58,
-  cell59,
-  cell60,
-  cell61,
-  cell62,
-  cell63,
-  cell64,
-  cell65,
-  cell66,
-  cell67,
-  cell68,
-  cell69,
-  cell70,
-  cell71,
-  cell72,
-  cell73,
-  cell74,
-  cell75,
-  cell76,
-  cell77,
-  cell78,
-  cell79,
-  cell80,
-  cell81,
-  cell82,
-  cell83,
-  cell84,
-  cell85,
-  cell86,
-  cell87,
-  cell88,
-  cell89,
-  cell90,
-  cell91,
-  cell92,
-  cell93,
-  cell94,
-  cell95,
-  cell96,
-  cell97,
-  cell98,
-  cell99,
-  cell100,
-  cell101,
-  cell102,
-  cell103,
-  cell104,
-];
 
 export default function MainView() {
   const {
@@ -933,16 +518,13 @@ export default function MainView() {
     classrooms,
     subjects,
     times,
+    setTimes,
+    setSubjects, 
+    setClassrooms, 
+    setClasses,
+    setProfessors
   } = useContext(ScheduleContext);
-  console.log(
-    "Context: ",
-    schedule,
-    professors,
-    subjects,
-    times,
-    classes,
-    classrooms
-  );
+
   const renderCell = (timeslotIndex, professorLessons) => {
     const lessonsInThisTimeslot = professorLessons.filter(
       (lesson) => lesson.timeIdx === timeslotIndex
@@ -956,7 +538,7 @@ export default function MainView() {
       color: lessonsInThisTimeslot.length > 0 ? "common.white" : "text.primary",
       textAlign: "center",
       borderRight:
-        timeslotIndex < time.length - 1
+        timeslotIndex < times.length - 1
           ? "1px solid rgba(224, 224, 224, 1)"
           : "",
     };
@@ -988,10 +570,9 @@ export default function MainView() {
     setGroupedLessons(groupedLessons);
 
     // setRefresh(!refresh);
-    //optimizeScheduleWith2Opt(initialSolution, setTempSolution);
   }, [schedule]);
 
-  const [tempSolution, setTempSolution] = useState(initialSolution);
+  const [tempSolution, setTempSolution] = useState(schedule);
   const [groupedLessons, setGroupedLessons] = useState({});
   const [refresh, setRefresh] = useState(true);
   // const groupedLessons = {};
@@ -1042,7 +623,7 @@ export default function MainView() {
     setGroupedLessons(groupedLessons);
   };
   const handleTabuClicked = () => {
-    const tabuSolution = tabuSearchOptimization(schedule, 10000);
+    const tabuSolution = tabuSearchOptimization(schedule, 10000, 0, times.length - 1);
     const groupedLessons = {};
     tabuSolution.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
@@ -1054,7 +635,37 @@ export default function MainView() {
     setTempSolution(tabuSolution);
     setGroupedLessons(groupedLessons);
   };
-  /* Commented just to show solution made by hand */
+  const handle2OptClicked = () => {
+    const TwoOptSolution = optimizeScheduleWith2Opt(schedule, 0, times.length - 1);
+    const groupedLessons = {};
+    TwoOptSolution.forEach((lesson) => {
+      const professorName = professors[lesson.professorIdx];
+      if (!groupedLessons[professorName]) {
+        groupedLessons[professorName] = [];
+      }
+      groupedLessons[professorName].push(lesson);
+    });
+    setTempSolution(TwoOptSolution);
+    setGroupedLessons(groupedLessons);
+  };
+  const handleExample2Clicked = () => {
+    setTimes(timeExample);
+    setSubjects(subjectsExample);
+    setClassrooms(classroomsExample);
+    setClasses(classExample);
+    setProfessors(professorsExample);
+    setSchedule(scheduleExample1);
+    const groupedLessons = {};
+    scheduleExample1.forEach((lesson) => {
+      const professorName = professors[lesson.professorIdx];
+      if (!groupedLessons[professorName]) {
+        groupedLessons[professorName] = [];
+      }
+      groupedLessons[professorName].push(lesson);
+    });
+    setTempSolution(scheduleExample1);
+    setGroupedLessons(groupedLessons);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -1063,6 +674,12 @@ export default function MainView() {
           <Button onClick={() => handleBatClicked()}>Run Bat algorithm</Button>
           <Button onClick={() => handleTabuClicked()}>
             Run Tabu seach algorithm
+          </Button>
+          <Button onClick={() => handle2OptClicked()}>
+            Run 2Opt seach algorithm
+          </Button>
+          <Button onClick={() => handleExample2Clicked()}>
+            Load example 2
           </Button>
         </Box>
         <Box display="flex" justifyContent="center">
@@ -1101,10 +718,7 @@ export default function MainView() {
               <Button
                 id={className}
                 onClick={() => {
-                  //console.log("clicked ", index);
                   setSelectedClassIdx(index);
-                  // console.log(schedule);
-                  // setSchedule(initialSolutionTest);
                 }}
               >
                 {className}
@@ -1119,9 +733,7 @@ export default function MainView() {
               <Button
                 id={classroom}
                 onClick={() => {
-                  //console.log("clicked ", index);
                   setSelectedClassroomIdx(index);
-                  // setSchedule(initialSolutionTest);
                 }}
               >
                 {classroom}
@@ -1136,9 +748,7 @@ export default function MainView() {
               <Button
                 id={professor}
                 onClick={() => {
-                  //console.log("clicked ", index);
-                  setSelectedClassIdx(index);
-                  // setSchedule(initialSolutionTest);
+                  setSelectedProfessorIdx(index);
                 }}
               >
                 {professor}
