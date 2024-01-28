@@ -18,13 +18,18 @@ import {
   checkBound,
   average,
 } from "../utils/helper-functions";
-
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 import { scheduleExample1, subjectsExample, professorsExample, classExample, classroomsExample, timeExample } from "@/utils/data";
 
 import React, { useState, useEffect, useContext } from "react";
 import ScheduleContext from "@/context/scheduleContext";
 import Link from "next/link";
 import jstat from "jstat";
+import { bool } from "random-js";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    TABU SEACH    ///////////////////////////////////////////
@@ -44,12 +49,12 @@ const generateRandomGammaInteger = (shape, scale, minValue, maxValue) => {
   return finalNumber;
 };
 
-function cost_2(x) {
+function cost_2(x, professors, classes, times) {
   let sum = 0;
-  sum += checkProfessorBreakAndNumOfLessons(x);
-  sum += checkForSameProfessorDifferentClass(x);
-  sum += checkClassGapsAndNumOfLessons(x); // commented to make professor conditions work first
-  sum += checkForSameClassDifferentSubject(x);
+  sum += checkProfessorBreakAndNumOfLessons(x, professors, classes, times);
+  sum += checkForSameProfessorDifferentClass(x, professors, classes, times);
+  sum += checkClassGapsAndNumOfLessons(x, professors, classes, times); // commented to make professor conditions work first
+  sum += checkForSameClassDifferentSubject(x, professors, classes, times);
   return sum;
 }
 
@@ -106,30 +111,46 @@ function updateTabuList(tabuList, schedule, maxSize = 100) {
   }
 }
 
-function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBound, upperBound) {
+function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBound, upperBound, professors, classes, times, distribution) {
   let currentSchedule = initialSchedule;
   let position = [];
 
-  for (let i = 0; i < currentSchedule.length; i++) {
-    position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
-    //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
-    //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
-  }
+  let positionList = [];
   console.log("Pretražujemo inicijalno rješenje...");
-  while (cost_2(switchTimes(position, currentSchedule)) < -600000) {
-    //console.log(cost_2(switchTimes(position, currentSchedule)));
-    for (let i = 0; i < currentSchedule.length; i++) {
-      position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
-      //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
-      //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
+
+  for (let i = 0; i < 100; i++) {
+    positionList[i] = [];
+    if(distribution == "random"){
+      for (let j = 0; j < currentSchedule.length; j++) {
+        positionList[i][j] = Math.round(getRdn(lowerBound, upperBound));
+      }
+    }
+  if(distribution == "gamma5"){
+      for (let j = 0; j < currentSchedule.length; j++) {
+        positionList[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
+      }
+  }
+
+  if(distribution == "gamma9"){
+      for (let j = 0; j < currentSchedule.length; j++) {
+        positionList[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
+      }
     }
   }
+
+  let costList = [];
+  for (let i = 0; i < 100; i++) {
+    costList[i] = cost_2(switchTimes(positionList[i], currentSchedule), professors, classes, times);
+  }
+
+  position = positionList[costList.indexOf(Math.max(...costList))]; 
+
   console.log(
     "Trošak inicijalnog rješenja: ",
-    cost_2(switchTimes(position, currentSchedule))
+    cost_2(switchTimes(position, currentSchedule), professors, classes, times)
   );
   currentSchedule = switchTimes(position, currentSchedule);
-  let currentCost = cost_2(currentSchedule);
+  let currentCost = cost_2(currentSchedule, professors, classes, times);
   let tabuList = [];
   let bestSchedule = currentSchedule;
   let bestCost = currentCost;
@@ -148,7 +169,7 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBoun
 
     // Pronalaženje najboljeg susjeda koji nije na tabu listi
     for (let neighbor of neighbors) {
-      let cost = cost_2(neighbor);
+      let cost = cost_2(neighbor, professors, classes, times);
       if (cost > bestNeighborCost && !isInTabuList(neighbor, tabuList)) {
         bestNeighbor = neighbor;
         bestNeighborCost = cost;
@@ -171,7 +192,7 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBoun
   }
 
   // Vraćanje najboljeg rasporeda pronađenog tokom pretrage
-  console.log("Trošak rješenja", cost_2(bestSchedule));
+  console.log("Trošak rješenja", cost_2(bestSchedule, professors, classes, times));
   return bestSchedule;
 }
 
@@ -192,7 +213,11 @@ function batAlgorithm(
   fMin = 0,
   fMax = 10,
   lowerBound = 0,
-  upperBound
+  upperBound,
+  professors, 
+  classes, 
+  times,
+  distribution
 ) {
   if (!costFunc)
     throw new Error(
@@ -211,22 +236,24 @@ function batAlgorithm(
 
   let random = [];
   console.log("Pretražujemo inicijalno rješenje...");
-  for (let i = 0; i < solutionInput.length; i++) {
-    //random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
-    //random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
-    random[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
-  }
-  while (costFunc(switchTimes(random, solutionInput)) < -450000) {
-    //console.log(costFunc(switchTimes(random, solutionInput)));
+  if(distribution == "random"){
     for (let i = 0; i < solutionInput.length; i++) {
-      //random[i] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
-      //random[i] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
-      random[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
+      random[i] = Math.round(getRdn(lowerBound, upperBound));
+    }
+  }
+  if(distribution == "gamma5"){
+    for (let i = 0; i < solutionInput.length; i++) {
+      random[i] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
+    }
+  }
+  if(distribution == "gamma9"){
+    for (let i = 0; i < solutionInput.length; i++) {
+      random[i] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
     }
   }
   console.log(
     "Trošak inicijalnog rješenja: ",
-    costFunc(switchTimes(random, solutionInput))
+    costFunc(switchTimes(random, solutionInput), professors, classes, times)
   );
   for (let i = 0; i < popSize; i++) {
     loudness[i] = getRdn(0, maxLoudness);
@@ -236,18 +263,23 @@ function batAlgorithm(
     velocity[i] = [];
     newPosition[i] = [];
 
-    for (let j = 0; j < solutionInput.length; j++) {
-      //position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -600000 for this distribution
-      position[i][j] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
-      //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -700000 for this distribution
-      velocity[i][j] = getRdn(-1, 1);
-    }
-    while (costFunc(switchTimes(position[i], solutionInput)) < -450000) {
-      //console.log(costFunc(switchTimes(position[i], solutionInput)));
+    if(distribution == "random"){
       for (let j = 0; j < solutionInput.length; j++) {
-        //position[i][j] = generateRandomGammaInteger(9, 0.25, 0, time.length - 1); // Treshold -700000 for this distribution
-        position[i][j] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
-        //position[i][j] = generateRandomGammaInteger(5, 0.45, 0, time.length - 1); // Treshold -800000 for this distribution
+        position[i][j] = Math.round(getRdn(lowerBound, upperBound));
+        velocity[i][j] = getRdn(-1, 1);
+      }
+    }
+    if(distribution == "gamma5"){
+      for (let j = 0; j < solutionInput.length; j++) {
+        position[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
+        velocity[i][j] = getRdn(-1, 1);
+      }
+    }
+
+    if(distribution == "gamma9"){
+      for (let j = 0; j < solutionInput.length; j++) {
+        position[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
+        velocity[i][j] = getRdn(-1, 1);
       }
     }
   }
@@ -258,12 +290,14 @@ function batAlgorithm(
   let cost = [];
 
   for (let i = 0; i < popSize; i++) {
-    cost[i] = costFunc(switchTimes(position[i], solution));
+    cost[i] = costFunc(switchTimes(position[i], solution), professors, classes, times);
   }
 
   let bestBat;
   let lastBat = position[0];
   let counter = 0;
+  let randomized = false;
+  let nextCounter = 0;
 
   // cycle through each generation
   for (let gen = 1; gen <= maxGen; gen++) {
@@ -274,13 +308,16 @@ function batAlgorithm(
     solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
 
     if (
-      costFunc(switchTimes(lastBat, solution)) <
-      costFunc(switchTimes(bestBat, solution))
+      costFunc(switchTimes(lastBat, solution), professors, classes, times) <
+      costFunc(switchTimes(bestBat, solution), professors, classes, times)
     ) {
       lastBat = bestBat;
       counter = 0;
     } else {
       counter = counter + 1;
+      if(randomized){
+        nextCounter = nextCounter + 1;
+      }
     }
 
     if (gen % saveRate === 0 || gen === 1) {
@@ -325,7 +362,7 @@ function batAlgorithm(
         }
       }
 
-      let newCost = costFunc(switchTimes(newPosition[i], solution)); // bat 'newPosition's cost
+      let newCost = costFunc(switchTimes(newPosition[i], solution), professors, classes, times); // bat 'newPosition's cost
 
       // try to accept the new solution
       if (
@@ -342,29 +379,33 @@ function batAlgorithm(
       }
     }
 
-    if (counter >= 50) {
+    if ((counter >= 50 && randomized == false) || nextCounter >= 1000) {
+      nextCounter = 0;
+      randomized = true;
       let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
       for (let i = 0; i < popSize; i++) {
         if (
-          costFunc(switchTimes(indexMax, solution)) !=
-          costFunc(switchTimes(position[i], solution))
+          costFunc(switchTimes(indexMax, solution), professors, classes, times) !=
+          costFunc(switchTimes(position[i], solution), professors, classes, times)
         ) {
           position[i] = [];
 
           for (let j = 0; j < solutionInput.length; j++) {
-            // position[i][j] = generateRandomGammaInteger(
-            //   10,
-            //   2,
-            //   0,
-            //   time.length - 1
-            // );
-            // position[i][j] = generateRandomGammaInteger(
-            //   5,
-            //   0.45,
-            //   0,
-            //   time.length - 1
-            // );
-            position[i][j] = Math.round(getRdn(lowerBound, upperBound));
+            if(distribution == "random"){
+              for (let j = 0; j < solutionInput.length; j++) {
+                position[i][j] = Math.round(getRdn(lowerBound, upperBound));
+                }
+              }
+            if(distribution == "gamma5"){
+                for (let j = 0; j < solutionInput.length; j++) {
+                position[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
+              }
+            }
+            if(distribution == "gamma9"){
+              for (let j = 0; j < solutionInput.length; j++) {
+                position[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
+              }
+            }
           }
         }
       }
@@ -375,7 +416,7 @@ function batAlgorithm(
   solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
   let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
   console.log(cost[indexMax]);
-  console.log("Trošak rješenja:", costFunc(solution));
+  console.log("Trošak rješenja:", costFunc(solution, professors, classes, times));
   let newSolution = JSON.parse(JSON.stringify(solution));
   // setTempSolution(newSolution);
   return solution;
@@ -420,14 +461,14 @@ const theme = createTheme({
 ////////////////////////////////////    2-OPT ALGORITHM    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-function generateImprovedSchedule(currentSchedule) {
+function generateImprovedSchedule(currentSchedule, professors, classes, times) {
   let bestSchedule = currentSchedule;
-  let bestCost = cost_2(currentSchedule);
+  let bestCost = cost_2(currentSchedule, professors, classes, times);
 
   for (let i = 0; i < currentSchedule.length; i++) {
     for (let j = 0; j < currentSchedule.length; j++) {
       let modifiedSchedule = modifyScheduleTime(bestSchedule, i, j);
-      let modifiedCost = cost_2(modifiedSchedule);
+      let modifiedCost = cost_2(modifiedSchedule, professors, classes, times);
 
       if (modifiedCost > bestCost) {
         bestSchedule = modifiedSchedule;
@@ -461,37 +502,53 @@ function modifyScheduleClass(schedule, index1, index2) {
   return newSchedule;
 }
 
-function optimizeScheduleWith2Opt(initialSchedule, lowerBound, upperBound) {
+function optimizeScheduleWith2Opt(initialSchedule, lowerBound, upperBound, professors, classes, times, distribution) {
   let bestSchedule = initialSchedule;
   let position = [];
 
-  for (let i = 0; i < initialSchedule.length; i++) {
-    position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
-    //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
-    //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
-  }
+  let positionList = [];
   console.log("Pretražujemo inicijalno rješenje...");
-  while (cost_2(switchTimes(position, initialSchedule)) < -600000) {
-    //console.log(cost_2(switchTimes(position, currentSchedule)));
-    for (let i = 0; i < initialSchedule.length; i++) {
-      position[i] = generateRandomGammaInteger(9, 0.25, lowerBound, upperBound); // Treshold -600000 for this distribution
-      //position[i] = generateRandomGammaInteger(5, 0.45, lowerBound, upperBound); // Treshold -700000 for this distribution
-      //position[i] = Math.round(getRdn(lowerBound, upperBound)); // Treshold -450000 for this distribution
+
+  for (let i = 0; i < 100; i++) {
+    positionList[i] = [];
+    if(distribution == "random"){
+      for (let j = 0; j < initialSchedule.length; j++) {
+        positionList[i][j] = Math.round(getRdn(lowerBound, upperBound));
+      }
+    }
+  if(distribution == "gamma5"){
+      for (let j = 0; j < initialSchedule.length; j++) {
+        positionList[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
+      }
+  }
+
+  if(distribution == "gamma9"){
+      for (let j = 0; j < initialSchedule.length; j++) {
+        positionList[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
+      }
     }
   }
+
+  let costList = [];
+  for (let i = 0; i < 100; i++) {
+    costList[i] = cost_2(switchTimes(positionList[i], initialSchedule), professors, classes, times);
+  }
+
+  position = positionList[costList.indexOf(Math.max(...costList))]; 
+
   console.log(
     "Trošak inicijalnog rješenja: ",
-    cost_2(switchTimes(position, bestSchedule))
+    cost_2(switchTimes(position, bestSchedule), professors, classes, times)
   );
   switchTimes(position, bestSchedule);
 
-  let bestCost = cost_2(switchTimes(position, bestSchedule));
+  let bestCost = cost_2(switchTimes(position, bestSchedule), professors, classes, times);
 
   while (true) {
-    let two_opt_solution = generateImprovedSchedule(bestSchedule);
+    let two_opt_solution = generateImprovedSchedule(bestSchedule, professors, classes, times);
     console.log(bestCost);
-    if (cost_2(switchTimes(position, two_opt_solution)) > bestCost) {
-      bestCost = cost_2(switchTimes(position, two_opt_solution))
+    if (cost_2(switchTimes(position, two_opt_solution), professors, classes, times) > bestCost) {
+      bestCost = cost_2(switchTimes(position, two_opt_solution), professors, classes, times)
       bestSchedule = two_opt_solution;
     } else {
       break;
@@ -500,7 +557,7 @@ function optimizeScheduleWith2Opt(initialSchedule, lowerBound, upperBound) {
 
   console.log(
     "Trošak rješenja: ",
-    cost_2(switchTimes(position, bestSchedule))
+    cost_2(switchTimes(position, bestSchedule), professors, classes, times)
   );
   return bestSchedule;
 }
@@ -609,7 +666,12 @@ export default function MainView() {
       0,
       29,
       0,
-      times.length - 1
+      times.length - 1,
+      professors, 
+      classes, 
+      times,
+      distribution
+
     );
     const groupedLessons = {};
     batSolution.forEach((lesson) => {
@@ -623,7 +685,7 @@ export default function MainView() {
     setGroupedLessons(groupedLessons);
   };
   const handleTabuClicked = () => {
-    const tabuSolution = tabuSearchOptimization(schedule, 10000, 0, times.length - 1);
+    const tabuSolution = tabuSearchOptimization(schedule, 10000, 0, times.length - 1, professors, classes, times, distribution);
     const groupedLessons = {};
     tabuSolution.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
@@ -636,7 +698,7 @@ export default function MainView() {
     setGroupedLessons(groupedLessons);
   };
   const handle2OptClicked = () => {
-    const TwoOptSolution = optimizeScheduleWith2Opt(schedule, 0, times.length - 1);
+    const TwoOptSolution = optimizeScheduleWith2Opt(schedule, 0, times.length - 1, professors, classes, times, distribution);
     const groupedLessons = {};
     TwoOptSolution.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
@@ -666,7 +728,11 @@ export default function MainView() {
     setTempSolution(scheduleExample1);
     setGroupedLessons(groupedLessons);
   };
+  const [distribution, setDistribution] = useState('random'); // Default value
 
+  const handleChange = (event) => {
+    setDistribution(event.target.value);
+  };
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
@@ -678,6 +744,19 @@ export default function MainView() {
           <Button onClick={() => handle2OptClicked()}>
             Run 2Opt seach algorithm
           </Button>
+          <FormControl component="fieldset">
+      <RadioGroup
+        aria-label="distribution"
+        name="distribution"
+        value={distribution}
+        onChange={handleChange}
+        style={{ display: 'flex', flexDirection: 'row' }}
+      >
+        <FormControlLabel value="random" control={<Radio />} label="Random" />
+        <FormControlLabel value="gamma5" control={<Radio />} label="Gamma shape=9 scale=0.25" />
+        <FormControlLabel value="gamma9" control={<Radio />} label="Gamma shape=5, scale=0.45" />
+      </RadioGroup>
+    </FormControl>
           <Button onClick={() => handleExample2Clicked()}>
             Load example 2
           </Button>
