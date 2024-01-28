@@ -1,115 +1,3 @@
-import {
-  professors,
-  subjects,
-  time,
-  classrooms,
-  classes,
-  cell1,
-  cell2,
-  cell3,
-  cell4,
-  cell5,
-  cell6,
-  cell7,
-  cell8,
-  cell9,
-  cell10,
-  cell11,
-  cell12,
-  cell13,
-  cell14,
-  cell15,
-  cell16,
-  cell17,
-  cell18,
-  cell19,
-  cell20,
-  cell21,
-  cell22,
-  cell23,
-  cell24,
-  cell25,
-  cell26,
-  cell27,
-  cell28,
-  cell29,
-  cell30,
-  cell31,
-  cell32,
-  cell33,
-  cell34,
-  cell35,
-  cell36,
-  cell37,
-  cell38,
-  cell39,
-  cell40,
-  cell41,
-  cell42,
-  cell43,
-  cell44,
-  cell45,
-  cell46,
-  cell47,
-  cell48,
-  cell49,
-  cell50,
-  cell51,
-  cell52,
-  cell53,
-  cell54,
-  cell55,
-  cell56,
-  cell57,
-  cell58,
-  cell59,
-  cell60,
-  cell61,
-  cell62,
-  cell63,
-  cell64,
-  cell65,
-  cell66,
-  cell67,
-  cell68,
-  cell69,
-  cell70,
-  cell71,
-  cell72,
-  cell73,
-  cell74,
-  cell75,
-  cell76,
-  cell77,
-  cell78,
-  cell79,
-  cell80,
-  cell81,
-  cell82,
-  cell83,
-  cell84,
-  cell85,
-  cell86,
-  cell87,
-  cell88,
-  cell89,
-  cell90,
-  cell91,
-  cell92,
-  cell93,
-  cell94,
-  cell95,
-  cell96,
-  cell97,
-  cell98,
-  cell99,
-  cell100,
-  cell101,
-  cell102,
-  cell103,
-  cell104,
-} from "../utils/data";
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////    HELPER FUNCTIONS    /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,13 +69,13 @@ export const checkIfProfessorDayIsContinousOrWithOneBreak = (arr) => {
 //  Solution is made of 'solutionCells', we have to check if some two cells have the
 //  the same attributes professorIdx and timeIdx which would mean that the same professor
 //  is asigned to different class at the same time
-export const checkForSameProfessorDifferentClass = (solution) => {
+export const checkForSameProfessorDifferentClass = (solution, professors, classes, times) => {
   //  we will accumulate penalties in this variable
   let sum = 0;
 
   //    we will iterate through the solution(all cells) for all professors and check if the times collide
   for (let i = 0; i < professors.length; i++) {
-    let timesForProfessor = new Array(time.length).fill(false);
+    let timesForProfessor = new Array(times.length).fill(false);
     for (let j = 0; j < solution.length; j++) {
       // console.log("s", solution[j]);
       if (
@@ -209,13 +97,13 @@ export const checkForSameProfessorDifferentClass = (solution) => {
   return sum; //   We didnt find double times for the same professor
 };
 
-export const checkForSameClassDifferentSubject = (solution) => {
+export const checkForSameClassDifferentSubject = (solution, professors, classes, times) => {
   //  we will accumulate penalties in this variable
   let sum = 0;
 
   //    we will iterate through the solution(all cells) for all classes and check if the times collide
   for (let i = 0; i < classes.length; i++) {
-    let timesForClass = new Array(time.length).fill(false);
+    let timesForClass = new Array(times.length).fill(false);
     for (let j = 0; j < solution.length; j++) {
       // console.log("s", solution[j]);
       if (
@@ -240,7 +128,7 @@ export const checkForSameClassDifferentSubject = (solution) => {
 
 //  Function checks if some class has all their subjects one after another,
 //  without time gaps of 45mins or more and have between 4 and 7 classes a day
-export const checkClassGapsAndNumOfLessons = (solution) => {
+export const checkClassGapsAndNumOfLessons = (solution, professors, classes, time) => {
   //  we will accumulate penalties in this variable
   let sum = 0;
 
@@ -291,7 +179,7 @@ export const checkClassGapsAndNumOfLessons = (solution) => {
 
 //  Functions that checks if professor has at most one break of 45 mins,
 //  a 'one lesson' gap and between 2 and 7 classes a day
-export const checkProfessorBreakAndNumOfLessons = (solution) => {
+export const checkProfessorBreakAndNumOfLessons = (solution, professors, classes, time) => {
   //    we will iterate through the solution(all cells) for all professors and check if one professor has at most
   //    1 break of 45 mins between classes in a day and has between 2 and 7 lessons a day
 
@@ -371,14 +259,14 @@ export function average(array) {
 function checkForBreakBetweenClasses(time1, time2) {
   const daysOfWeek = ["M", "TU", "W", "TH", "F"];
 
-  const getDayIndex = (time) => {
-    const day = time.substring(0, time.length == 2 ? 1 : 2); // Consider both one and two-letter days
+  const getDayIndex = (times) => {
+    const day = times.substring(0, times.length == 2 ? 1 : 2); // Consider both one and two-letter days
     return daysOfWeek.indexOf(day);
   };
 
-  const getTimeIndex = (time) => {
-    let substringIdx = time.length == 2 ? 1 : 2;
-    return parseInt(time.substring(substringIdx));
+  const getTimeIndex = (times) => {
+    let substringIdx = times.length == 2 ? 1 : 2;
+    return parseInt(times.substring(substringIdx));
   };
 
   const dayIndex1 = getDayIndex(time1);
