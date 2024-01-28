@@ -276,7 +276,19 @@ export default function InputView() {
                       </div>
                     ))}
                   {category === "class" &&
-                    classes.map((item, index) => <div key={index}>{item}</div>)}
+                    classes.map((item, index) => (
+                      <div key={index}>
+                        {item}{" "}
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleDelete(category, item)}
+                          startIcon={<DeleteIcon />}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    ))}
                   {category === "classroom" &&
                     classrooms.map((item, index) => (
                       <div key={index}>
