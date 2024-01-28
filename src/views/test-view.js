@@ -18,12 +18,19 @@ import {
   checkBound,
   average,
 } from "../utils/helper-functions";
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import { scheduleExample1, subjectsExample, professorsExample, classExample, classroomsExample, timeExample } from "@/utils/data";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import {
+  scheduleExample1,
+  subjectsExample,
+  professorsExample,
+  classExample,
+  classroomsExample,
+  timeExample,
+} from "@/utils/data";
 
 import React, { useState, useEffect, useContext } from "react";
 import ScheduleContext from "@/context/scheduleContext";
@@ -37,7 +44,7 @@ import { bool } from "random-js";
 
 const generateRandomGammaInteger = (shape, scale, minValue, maxValue) => {
   // Generate a random number from the gamma distribution
-  let randomNumber = jstat.gamma.sample(shape, scale) + 1;
+  let randomNumber = jstat.gamma.sample((shape * maxValue) / 5, scale) + 1;
   randomNumber = randomNumber * (Math.floor(Math.random() * 5) + 1);
 
   // Round to the nearest integer
@@ -78,9 +85,7 @@ function generateNeighbors(schedule, number) {
     //let randomChange = Math.random() > 0.5 ? "timeIdx" : "classroomIdx"; switching rooms not efective, especially by using a 50/50 aproach with timeslots
 
     //if (randomChange === "timeIdx") {
-      newSchedule[randomIndex].timeIdx = Math.floor(
-        Math.random() * number
-      );
+    newSchedule[randomIndex].timeIdx = Math.floor(Math.random() * number);
     /*
     } else {
       newSchedule[randomIndex].classroomIdx = Math.floor(
@@ -90,7 +95,6 @@ function generateNeighbors(schedule, number) {
     */
     neighbors.push(newSchedule);
   }
-  
 
   return neighbors;
 }
@@ -111,7 +115,16 @@ function updateTabuList(tabuList, schedule, maxSize = 100) {
   }
 }
 
-function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBound, upperBound, professors, classes, times, distribution) {
+function tabuSearchOptimization(
+  initialSchedule,
+  number_of_iterations,
+  lowerBound,
+  upperBound,
+  professors,
+  classes,
+  times,
+  distribution
+) {
   let currentSchedule = initialSchedule;
   let position = [];
 
@@ -120,18 +133,18 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBoun
 
   for (let i = 0; i < 100; i++) {
     positionList[i] = [];
-    if(distribution == "random"){
+    if (distribution == "random") {
       for (let j = 0; j < currentSchedule.length; j++) {
         positionList[i][j] = Math.round(getRdn(lowerBound, upperBound));
       }
     }
-  if(distribution == "gamma5"){
+    if (distribution == "gamma5") {
       for (let j = 0; j < currentSchedule.length; j++) {
         positionList[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
       }
-  }
+    }
 
-  if(distribution == "gamma9"){
+    if (distribution == "gamma9") {
       for (let j = 0; j < currentSchedule.length; j++) {
         positionList[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
       }
@@ -140,10 +153,15 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBoun
 
   let costList = [];
   for (let i = 0; i < 100; i++) {
-    costList[i] = cost_2(switchTimes(positionList[i], currentSchedule), professors, classes, times);
+    costList[i] = cost_2(
+      switchTimes(positionList[i], currentSchedule),
+      professors,
+      classes,
+      times
+    );
   }
 
-  position = positionList[costList.indexOf(Math.max(...costList))]; 
+  position = positionList[costList.indexOf(Math.max(...costList))];
 
   console.log(
     "Trošak inicijalnog rješenja: ",
@@ -192,7 +210,10 @@ function tabuSearchOptimization(initialSchedule, number_of_iterations, lowerBoun
   }
 
   // Vraćanje najboljeg rasporeda pronađenog tokom pretrage
-  console.log("Trošak rješenja", cost_2(bestSchedule, professors, classes, times));
+  console.log(
+    "Trošak rješenja",
+    cost_2(bestSchedule, professors, classes, times)
+  );
   return bestSchedule;
 }
 
@@ -214,8 +235,8 @@ function batAlgorithm(
   fMax = 10,
   lowerBound = 0,
   upperBound,
-  professors, 
-  classes, 
+  professors,
+  classes,
   times,
   distribution
 ) {
@@ -236,17 +257,17 @@ function batAlgorithm(
 
   let random = [];
   console.log("Pretražujemo inicijalno rješenje...");
-  if(distribution == "random"){
+  if (distribution == "random") {
     for (let i = 0; i < solutionInput.length; i++) {
       random[i] = Math.round(getRdn(lowerBound, upperBound));
     }
   }
-  if(distribution == "gamma5"){
+  if (distribution == "gamma5") {
     for (let i = 0; i < solutionInput.length; i++) {
       random[i] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
     }
   }
-  if(distribution == "gamma9"){
+  if (distribution == "gamma9") {
     for (let i = 0; i < solutionInput.length; i++) {
       random[i] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
     }
@@ -263,20 +284,20 @@ function batAlgorithm(
     velocity[i] = [];
     newPosition[i] = [];
 
-    if(distribution == "random"){
+    if (distribution == "random") {
       for (let j = 0; j < solutionInput.length; j++) {
         position[i][j] = Math.round(getRdn(lowerBound, upperBound));
         velocity[i][j] = getRdn(-1, 1);
       }
     }
-    if(distribution == "gamma5"){
+    if (distribution == "gamma5") {
       for (let j = 0; j < solutionInput.length; j++) {
         position[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
         velocity[i][j] = getRdn(-1, 1);
       }
     }
 
-    if(distribution == "gamma9"){
+    if (distribution == "gamma9") {
       for (let j = 0; j < solutionInput.length; j++) {
         position[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
         velocity[i][j] = getRdn(-1, 1);
@@ -290,7 +311,12 @@ function batAlgorithm(
   let cost = [];
 
   for (let i = 0; i < popSize; i++) {
-    cost[i] = costFunc(switchTimes(position[i], solution), professors, classes, times);
+    cost[i] = costFunc(
+      switchTimes(position[i], solution),
+      professors,
+      classes,
+      times
+    );
   }
 
   let bestBat;
@@ -315,7 +341,7 @@ function batAlgorithm(
       counter = 0;
     } else {
       counter = counter + 1;
-      if(randomized){
+      if (randomized) {
         nextCounter = nextCounter + 1;
       }
     }
@@ -362,7 +388,12 @@ function batAlgorithm(
         }
       }
 
-      let newCost = costFunc(switchTimes(newPosition[i], solution), professors, classes, times); // bat 'newPosition's cost
+      let newCost = costFunc(
+        switchTimes(newPosition[i], solution),
+        professors,
+        classes,
+        times
+      ); // bat 'newPosition's cost
 
       // try to accept the new solution
       if (
@@ -379,31 +410,51 @@ function batAlgorithm(
       }
     }
 
-    if ((counter >= 50 && randomized == false) || nextCounter >= 1000) {
+    if ((counter >= 50 && randomized == false) || nextCounter >= 400) {
       nextCounter = 0;
       randomized = true;
       let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
       for (let i = 0; i < popSize; i++) {
         if (
-          costFunc(switchTimes(indexMax, solution), professors, classes, times) !=
-          costFunc(switchTimes(position[i], solution), professors, classes, times)
+          costFunc(
+            switchTimes(indexMax, solution),
+            professors,
+            classes,
+            times
+          ) !=
+          costFunc(
+            switchTimes(position[i], solution),
+            professors,
+            classes,
+            times
+          )
         ) {
           position[i] = [];
 
           for (let j = 0; j < solutionInput.length; j++) {
-            if(distribution == "random"){
+            if (distribution == "random") {
               for (let j = 0; j < solutionInput.length; j++) {
                 position[i][j] = Math.round(getRdn(lowerBound, upperBound));
-                }
-              }
-            if(distribution == "gamma5"){
-                for (let j = 0; j < solutionInput.length; j++) {
-                position[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
               }
             }
-            if(distribution == "gamma9"){
+            if (distribution == "gamma5") {
               for (let j = 0; j < solutionInput.length; j++) {
-                position[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
+                position[i][j] = generateRandomGammaInteger(
+                  5,
+                  0.45,
+                  0,
+                  upperBound
+                );
+              }
+            }
+            if (distribution == "gamma9") {
+              for (let j = 0; j < solutionInput.length; j++) {
+                position[i][j] = generateRandomGammaInteger(
+                  9,
+                  0.25,
+                  0,
+                  upperBound
+                );
               }
             }
           }
@@ -416,7 +467,10 @@ function batAlgorithm(
   solution = JSON.parse(JSON.stringify(switchTimes(bestBat, solution)));
   let indexMax = cost.indexOf(Math.max(...cost)); // best bat index so far
   console.log(cost[indexMax]);
-  console.log("Trošak rješenja:", costFunc(solution, professors, classes, times));
+  console.log(
+    "Trošak rješenja:",
+    costFunc(solution, professors, classes, times)
+  );
   let newSolution = JSON.parse(JSON.stringify(solution));
   // setTempSolution(newSolution);
   return solution;
@@ -462,7 +516,7 @@ const theme = createTheme({
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 function generateImprovedSchedule(currentSchedule, professors, classes, times) {
-  let bestSchedule = currentSchedule;
+  let bestSchedule = JSON.parse(JSON.stringify(currentSchedule));
   let bestCost = cost_2(currentSchedule, professors, classes, times);
 
   for (let i = 0; i < currentSchedule.length; i++) {
@@ -471,7 +525,7 @@ function generateImprovedSchedule(currentSchedule, professors, classes, times) {
       let modifiedCost = cost_2(modifiedSchedule, professors, classes, times);
 
       if (modifiedCost > bestCost) {
-        bestSchedule = modifiedSchedule;
+        bestSchedule = JSON.parse(JSON.stringify(modifiedSchedule));
         bestCost = modifiedCost;
       }
     }
@@ -502,8 +556,16 @@ function modifyScheduleClass(schedule, index1, index2) {
   return newSchedule;
 }
 
-function optimizeScheduleWith2Opt(initialSchedule, lowerBound, upperBound, professors, classes, times, distribution) {
-  let bestSchedule = initialSchedule;
+function optimizeScheduleWith2Opt(
+  initialSchedule,
+  lowerBound,
+  upperBound,
+  professors,
+  classes,
+  times,
+  distribution
+) {
+  let bestSchedule = JSON.parse(JSON.stringify(initialSchedule));
   let position = [];
 
   let positionList = [];
@@ -511,18 +573,18 @@ function optimizeScheduleWith2Opt(initialSchedule, lowerBound, upperBound, profe
 
   for (let i = 0; i < 100; i++) {
     positionList[i] = [];
-    if(distribution == "random"){
+    if (distribution == "random") {
       for (let j = 0; j < initialSchedule.length; j++) {
         positionList[i][j] = Math.round(getRdn(lowerBound, upperBound));
       }
     }
-  if(distribution == "gamma5"){
+    if (distribution == "gamma5") {
       for (let j = 0; j < initialSchedule.length; j++) {
         positionList[i][j] = generateRandomGammaInteger(5, 0.45, 0, upperBound);
       }
-  }
+    }
 
-  if(distribution == "gamma9"){
+    if (distribution == "gamma9") {
       for (let j = 0; j < initialSchedule.length; j++) {
         positionList[i][j] = generateRandomGammaInteger(9, 0.25, 0, upperBound);
       }
@@ -531,25 +593,52 @@ function optimizeScheduleWith2Opt(initialSchedule, lowerBound, upperBound, profe
 
   let costList = [];
   for (let i = 0; i < 100; i++) {
-    costList[i] = cost_2(switchTimes(positionList[i], initialSchedule), professors, classes, times);
+    costList[i] = cost_2(
+      switchTimes(positionList[i], initialSchedule),
+      professors,
+      classes,
+      times
+    );
   }
 
-  position = positionList[costList.indexOf(Math.max(...costList))]; 
+  position = positionList[costList.indexOf(Math.max(...costList))];
 
   console.log(
     "Trošak inicijalnog rješenja: ",
     cost_2(switchTimes(position, bestSchedule), professors, classes, times)
   );
-  switchTimes(position, bestSchedule);
+  bestSchedule = switchTimes(position, bestSchedule);
 
-  let bestCost = cost_2(switchTimes(position, bestSchedule), professors, classes, times);
+  let bestCost = cost_2(
+    switchTimes(position, bestSchedule),
+    professors,
+    classes,
+    times
+  );
 
   while (true) {
-    let two_opt_solution = generateImprovedSchedule(bestSchedule, professors, classes, times);
+    let two_opt_solution = generateImprovedSchedule(
+      bestSchedule,
+      professors,
+      classes,
+      times
+    );
     console.log(bestCost);
-    if (cost_2(switchTimes(position, two_opt_solution), professors, classes, times) > bestCost) {
-      bestCost = cost_2(switchTimes(position, two_opt_solution), professors, classes, times)
-      bestSchedule = two_opt_solution;
+    if (
+      cost_2(
+        switchTimes(position, two_opt_solution),
+        professors,
+        classes,
+        times
+      ) > bestCost
+    ) {
+      bestCost = cost_2(
+        switchTimes(position, two_opt_solution),
+        professors,
+        classes,
+        times
+      );
+      bestSchedule = JSON.parse(JSON.stringify(two_opt_solution));
     } else {
       break;
     }
@@ -576,10 +665,10 @@ export default function MainView() {
     subjects,
     times,
     setTimes,
-    setSubjects, 
-    setClassrooms, 
+    setSubjects,
+    setClassrooms,
     setClasses,
-    setProfessors
+    setProfessors,
   } = useContext(ScheduleContext);
 
   const renderCell = (timeslotIndex, professorLessons) => {
@@ -667,11 +756,10 @@ export default function MainView() {
       29,
       0,
       times.length - 1,
-      professors, 
-      classes, 
+      professors,
+      classes,
       times,
       distribution
-
     );
     const groupedLessons = {};
     batSolution.forEach((lesson) => {
@@ -682,10 +770,20 @@ export default function MainView() {
       groupedLessons[professorName].push(lesson);
     });
     setTempSolution(batSolution);
+    setSchedule(batSolution);
     setGroupedLessons(groupedLessons);
   };
   const handleTabuClicked = () => {
-    const tabuSolution = tabuSearchOptimization(schedule, 10000, 0, times.length - 1, professors, classes, times, distribution);
+    const tabuSolution = tabuSearchOptimization(
+      schedule,
+      10000,
+      0,
+      times.length - 1,
+      professors,
+      classes,
+      times,
+      distribution
+    );
     const groupedLessons = {};
     tabuSolution.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
@@ -695,20 +793,30 @@ export default function MainView() {
       groupedLessons[professorName].push(lesson);
     });
     setTempSolution(tabuSolution);
+    setSchedule(tabuSolution);
     setGroupedLessons(groupedLessons);
   };
   const handle2OptClicked = () => {
-    const TwoOptSolution = optimizeScheduleWith2Opt(schedule, 0, times.length - 1, professors, classes, times, distribution);
-    const groupedLessons = {};
+    const TwoOptSolution = optimizeScheduleWith2Opt(
+      schedule,
+      0,
+      times.length - 1,
+      professors,
+      classes,
+      times,
+      distribution
+    );
+    const groupedLessons2 = {};
     TwoOptSolution.forEach((lesson) => {
       const professorName = professors[lesson.professorIdx];
-      if (!groupedLessons[professorName]) {
-        groupedLessons[professorName] = [];
+      if (!groupedLessons2[professorName]) {
+        groupedLessons2[professorName] = [];
       }
-      groupedLessons[professorName].push(lesson);
+      groupedLessons2[professorName].push(lesson);
     });
     setTempSolution(TwoOptSolution);
-    setGroupedLessons(groupedLessons);
+    setGroupedLessons(groupedLessons2);
+    setSchedule(TwoOptSolution);
   };
   const handleExample2Clicked = () => {
     setTimes(timeExample);
@@ -728,11 +836,12 @@ export default function MainView() {
     setTempSolution(scheduleExample1);
     setGroupedLessons(groupedLessons);
   };
-  const [distribution, setDistribution] = useState('random'); // Default value
+  const [distribution, setDistribution] = useState("random"); // Default value
 
   const handleChange = (event) => {
     setDistribution(event.target.value);
   };
+
   return (
     <ThemeProvider theme={theme}>
       <Container sx={{ mt: "70px", pl: 0, width: "100%" }}>
@@ -745,18 +854,30 @@ export default function MainView() {
             Run 2Opt seach algorithm
           </Button>
           <FormControl component="fieldset">
-      <RadioGroup
-        aria-label="distribution"
-        name="distribution"
-        value={distribution}
-        onChange={handleChange}
-        style={{ display: 'flex', flexDirection: 'row' }}
-      >
-        <FormControlLabel value="random" control={<Radio />} label="Random" />
-        <FormControlLabel value="gamma5" control={<Radio />} label="Gamma shape=9 scale=0.25" />
-        <FormControlLabel value="gamma9" control={<Radio />} label="Gamma shape=5, scale=0.45" />
-      </RadioGroup>
-    </FormControl>
+            <RadioGroup
+              aria-label="distribution"
+              name="distribution"
+              value={distribution}
+              onChange={handleChange}
+              style={{ display: "flex", flexDirection: "row" }}
+            >
+              <FormControlLabel
+                value="random"
+                control={<Radio />}
+                label="Random"
+              />
+              <FormControlLabel
+                value="gamma5"
+                control={<Radio />}
+                label="Gamma shape=9 scale=0.25"
+              />
+              <FormControlLabel
+                value="gamma9"
+                control={<Radio />}
+                label="Gamma shape=5, scale=0.45"
+              />
+            </RadioGroup>
+          </FormControl>
           <Button onClick={() => handleExample2Clicked()}>
             Load example 2
           </Button>
@@ -790,7 +911,14 @@ export default function MainView() {
             </Table>
           </TableContainer>
         </Box>
-        <Box sx={{ display: "flex", marginTop: "20px", fontSize: 20 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            marginTop: "20px",
+            fontSize: 20,
+          }}
+        >
           <Box>Rasporedi za razrede:</Box>
           {classes.map((className, index) => (
             <Link href={"/class"}>
@@ -805,7 +933,14 @@ export default function MainView() {
             </Link>
           ))}
         </Box>
-        <Box sx={{ display: "flex", marginTop: "20px", fontSize: 20 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            marginTop: "20px",
+            fontSize: 20,
+          }}
+        >
           <Box>Rasporedi za kabinete:</Box>
           {classrooms.map((classroom, index) => (
             <Link href={"/classroom"}>
@@ -820,7 +955,14 @@ export default function MainView() {
             </Link>
           ))}
         </Box>
-        <Box sx={{ display: "flex", marginTop: "20px", fontSize: 20 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            marginTop: "20px",
+            fontSize: 20,
+          }}
+        >
           <Box>Rasporedi za profesore:</Box>
           {professors.map((professor, index) => (
             <Link href={"/professor"}>
