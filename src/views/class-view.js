@@ -10,7 +10,6 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import React, { useState, useEffect, useContext } from "react";
 import ScheduleContext from "@/context/scheduleContext";
 
-import { professors, subjects, time, classrooms, classes } from "../utils/data";
 import { generateEtags } from "../../next.config";
 
 const theme = createTheme({
@@ -20,7 +19,7 @@ const theme = createTheme({
 });
 
 export default function ClassView() {
-  const { selectedClassIdx, schedule, subjects, times, classrooms } =
+  const { selectedClassIdx, schedule, subjects, times, classrooms, classes} =
     useContext(ScheduleContext);
   const [classSchedule, setClassSchedule] = useState([]);
 
